@@ -1,0 +1,17 @@
+:root {
+  --color-text: #0f1115;
+  --color-text-muted: #5a5f6a;
+  --color-bg: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-border: #e1e3e8;
+  --color-primary: #0f1115; /* negro */
+  --color-secondary: #f2f3f5; /* gris claro */
+  --color-ingreso: #0a8f45; /* verde confirmación/positivo */
+  --color-egreso: #c62828; /* rojo principal */
+  --color-danger: #c62828;
+  --radius: 12px;
+  --tap-target: 44px;
+  --shadow-sm: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+
