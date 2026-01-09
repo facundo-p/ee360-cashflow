@@ -12,7 +12,7 @@ export const tiposSeed = [
   },
   {
     id: 't-plan-efectivo',
-    nombre: 'Plan mensual – efectivo',
+    nombre: 'Plan mensual',
     sentido: 'ingreso',
     icono: 'plan_mensual_efectivo.png',
     monto_sugerido: 70000,
@@ -22,7 +22,7 @@ export const tiposSeed = [
   },
   {
     id: 't-plan-transferencia',
-    nombre: 'Plan mensual – transferencia',
+    nombre: 'Plan mensual',
     sentido: 'ingreso',
     icono: 'plan_mensual_transferencia.png',
     monto_sugerido: 80000,
@@ -32,7 +32,7 @@ export const tiposSeed = [
   },
   {
     id: 't-plan-semestral-efectivo',
-    nombre: 'Plan semestral – efectivo',
+    nombre: 'Plan semestral',
     sentido: 'ingreso',
     icono: 'plan_semestral_efectivo.png',
     monto_sugerido: 350000,
@@ -42,7 +42,7 @@ export const tiposSeed = [
   },
   {
     id: 't-plan-semestral-tarjeta',
-    nombre: 'Plan semestral – tarjeta (cuotas)',
+    nombre: 'Plan semestral',
     sentido: 'ingreso',
     icono: 'plan_semestral_tarjeta.png',
     monto_sugerido: 420000,

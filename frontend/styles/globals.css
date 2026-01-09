@@ -88,12 +88,12 @@
   left: 2px;
   right: 2px;
   bottom: 2px;
-  background-color: var(--color-bg-icon);
+  background-color: var(--color-bg-content);
 }
 
 .btn-spartan-icon img {
   @apply relative z-10 w-full h-full object-contain rounded-full;
-  background-color: var(--color-bg-icon);
+  background-color: var(--color-bg-content);
 }
 
 .btn-spartan:hover .btn-spartan-icon {

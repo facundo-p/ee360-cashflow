@@ -20,12 +20,12 @@ export default function HomePage() {
   return (
     <div className="page-container">
       <header className="page-header">
-        <h1 className="title-primary">ENTRENAMIENTO ESPARTANO</h1>
+        <h1 className="title-primary">Cashflow EE360</h1>
         <h2 className="title-secondary">Tipo de movimiento</h2>
       </header>
 
       <div className="page-divider" />
-      
+
       <main className="page-main">
         <Botonera tipos={tipos} onSelect={handleSelect} />
       </main>
