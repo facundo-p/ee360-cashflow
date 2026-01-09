@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Botonera from '../components/Botonera';
+import BottomNav from '../components/BottomNav';
 import { listTipos } from '../lib/api-mock/tipos';
 
 export default function HomePage() {
@@ -17,19 +18,22 @@ export default function HomePage() {
   };
 
   return (
-    <main className="max-w-xl mx-auto px-4 py-6 space-y-4">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold text-gray-900">Seleccionar Movimiento</h1>
-      </div>
-      <Botonera tipos={tipos} onSelect={handleSelect} />
-      <button
-        type="button"
-        onClick={() => router.push('/movimientos')}
-        className="w-full rounded-lg bg-secondary text-gray-900 py-3 font-semibold border border-border hover:opacity-90 transition"
-      >
-        Ver movimientos
-      </button>
-    </main>
+    <div className="page-container">
+      <header className="page-header">
+        <h1 className="title-primary">ENTRENAMIENTO ESPARTANO</h1>
+        <h2 className="title-secondary">Tipo de movimiento</h2>
+      </header>
+
+      <div className="page-divider" />
+      
+      <main className="page-main">
+        <Botonera tipos={tipos} onSelect={handleSelect} />
+      </main>
+
+      <div className="page-divider" />
+
+      <BottomNav />
+    </div>
   );
 }
 

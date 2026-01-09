@@ -1,5 +1,572 @@
+/* Fuente para el título espartano */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   Variables de colores
+   ======================================== */
+:root {
+  --color-bg-header: #1a1a1a;
+  --color-bg-content: #2a2d3e;
+  --color-bg-icon: #e8e8e8;
+  --color-bg-nav: #1a1a1a;
+  --color-gold: #c9a227;
+  --color-gold-light: #d4a84b;
+  --color-text-light: #e8e8e8;
+  --color-text-gray: #707070;
+  --color-accent-red: #6b1010;
+  --color-nav-active: #c44536;
+}
 
+/* ========================================
+   Layout - Página Principal
+   ======================================== */
+.page-container {
+  @apply h-screen flex flex-col overflow-hidden;
+  background-color: var(--color-bg-content);
+}
+
+.page-header {
+  @apply shrink-0 px-6 pt-4 pb-2 text-center;
+  background-color: var(--color-bg-header);
+}
+
+.page-main {
+  @apply flex-1 px-4 py-4 overflow-hidden;
+  background-color: var(--color-bg-content);
+}
+
+.page-divider {
+  @apply shrink-0 h-1;
+  background: linear-gradient(90deg, transparent 0%, var(--color-accent-red) 15%, var(--color-accent-red) 85%, transparent 100%);
+}
+
+/* ========================================
+   Títulos
+   ======================================== */
+.title-secondary {
+  @apply text-xl tracking-widest uppercase;
+  font-family: 'Cinzel', serif;
+  color: var(--color-text-gray);
+}
+
+.title-primary {
+  @apply text-xl tracking-widest font-bold uppercase;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+/* ========================================
+   Botonera - Grid de íconos
+   ======================================== */
+.botonera-grid {
+  @apply h-full grid grid-cols-3 grid-rows-4 gap-x-3 gap-y-2 place-items-center;
+}
+
+.btn-spartan {
+  @apply relative flex flex-col items-center;
+}
+
+.btn-spartan-icon {
+  @apply relative rounded-full transition-transform active:scale-95;
+  @apply w-20 h-20 sm:w-24 sm:h-24;
+  padding: 2px;
+  background: linear-gradient(160deg, #e8c547 0%, #b8941f 25%, #8b6914 50%, #b8941f 75%, #e8c547 100%);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.btn-spartan-icon::before {
+  content: '';
+  @apply absolute rounded-full;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background-color: var(--color-bg-icon);
+}
+
+.btn-spartan-icon img {
+  @apply relative z-10 w-full h-full object-contain rounded-full;
+  background-color: var(--color-bg-icon);
+}
+
+.btn-spartan:hover .btn-spartan-icon {
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.6),
+    0 10px 20px rgba(201, 162, 39, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.btn-spartan-label {
+  @apply mt-2 font-bold uppercase tracking-wider text-center;
+  @apply text-[9px] sm:text-xs;
+  color: var(--color-text-light);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   Bottom Navigation
+   ======================================== */
+.bottom-nav {
+  @apply shrink-0 h-16 flex items-center justify-around;
+  background-color: var(--color-bg-nav);
+}
+
+.nav-button {
+  @apply flex flex-col items-center gap-1 px-4 py-2 transition-colors;
+  @apply text-gray-500 hover:text-gray-300;
+}
+
+.nav-button-active {
+  @apply flex flex-col items-center gap-1 px-4 py-2 transition-colors;
+  color: var(--color-nav-active);
+}
+
+.nav-icon {
+  @apply w-6 h-6;
+}
+
+.nav-label {
+  @apply text-xs font-medium;
+}
+
+/* ========================================
+   Formulario - Nuevo Movimiento
+   ======================================== */
+.form-container {
+  @apply h-screen flex flex-col overflow-hidden;
+  background: linear-gradient(180deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%);
+  background-image: 
+    linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(45, 45, 68, 0.9) 50%, rgba(26, 26, 46, 0.95) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.1) 40px, rgba(0,0,0,0.1) 80px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 80px);
+}
+
+.form-header {
+  @apply shrink-0 px-4 pt-4 pb-2 text-center;
+}
+
+.form-header-banner {
+  @apply inline-block px-6 py-2 text-xl font-bold uppercase tracking-widest;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+  background: linear-gradient(180deg, #8b1a1a 0%, #5c1010 50%, #8b1a1a 100%);
+  border: 3px solid;
+  border-image: linear-gradient(180deg, #e8c547, #8b6914, #e8c547) 1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.form-icon-container {
+  @apply flex justify-center py-2;
+}
+
+.form-icon {
+  @apply w-20 h-20 object-contain;
+}
+
+.form-tipo-label {
+  @apply text-center text-sm py-2;
+  color: var(--color-text-light);
+  font-family: 'Cinzel', serif;
+}
+
+.form-main {
+  @apply flex-1 px-4 py-4 overflow-y-auto;
+}
+
+.form-fields {
+  @apply space-y-4;
+}
+
+.form-label {
+  @apply block text-sm font-medium mb-1;
+  color: var(--color-text-light);
+}
+
+.form-label-required {
+  @apply text-red-400 ml-1;
+}
+
+.form-input {
+  @apply w-full px-4 py-3 rounded-lg text-white;
+  background-color: rgba(30, 30, 50, 0.8);
+  border: 2px solid var(--color-gold);
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--color-gold-light);
+  box-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+}
+
+.form-input::placeholder {
+  color: #666;
+}
+
+.form-select {
+  @apply w-full px-4 py-3 rounded-lg text-white appearance-none cursor-pointer;
+  background-color: rgba(30, 30, 50, 0.8);
+  border: 2px solid var(--color-gold);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d4a84b' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
+}
+
+.form-select:focus {
+  border-color: var(--color-gold-light);
+  box-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+  outline: none;
+}
+
+.form-select option {
+  background-color: #1a1a2e;
+  color: white;
+}
+
+.form-error {
+  @apply text-xs text-red-400 mt-1;
+}
+
+.form-actions {
+  @apply shrink-0 px-4 py-4;
+}
+
+.form-btn-submit {
+  @apply w-full py-4 text-xl font-bold uppercase tracking-widest transition-all;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+  background: linear-gradient(180deg, #8b1a1a 0%, #5c1010 50%, #8b1a1a 100%);
+  border: 3px solid;
+  border-image: linear-gradient(180deg, #e8c547, #8b6914, #e8c547) 1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.form-btn-submit:hover {
+  background: linear-gradient(180deg, #a52020 0%, #6b1010 50%, #a52020 100%);
+}
+
+.form-btn-submit:active {
+  transform: scale(0.98);
+}
+
+.form-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Lista de Movimientos
+   ======================================== */
+.list-container {
+  @apply h-screen flex flex-col overflow-hidden;
+  background-color: var(--color-bg-content);
+}
+
+.list-header {
+  @apply shrink-0 px-4 pt-4 pb-2 text-center;
+  background-color: var(--color-bg-header);
+}
+
+.list-main {
+  @apply flex-1 px-4 py-4 overflow-y-auto;
+}
+
+.list-filters {
+  @apply flex flex-wrap gap-2 mb-4;
+}
+
+.list-filter-select {
+  @apply flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm text-white appearance-none cursor-pointer;
+  background-color: rgba(30, 30, 50, 0.8);
+  border: 1px solid var(--color-gold);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d4a84b' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 20px;
+}
+
+.list-filter-input {
+  @apply flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm text-white;
+  background-color: rgba(30, 30, 50, 0.8);
+  border: 1px solid var(--color-gold);
+}
+
+.list-btn-export {
+  @apply px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide transition-all;
+  color: var(--color-gold-light);
+  background: linear-gradient(180deg, #8b1a1a 0%, #5c1010 100%);
+  border: 1px solid var(--color-gold);
+}
+
+.list-btn-export:hover {
+  background: linear-gradient(180deg, #a52020 0%, #6b1010 100%);
+}
+
+.list-items {
+  @apply space-y-3;
+}
+
+.list-item {
+  @apply block p-3 rounded-lg transition-all;
+  background-color: rgba(30, 30, 50, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+.list-item:hover {
+  background-color: rgba(40, 40, 60, 0.8);
+  border-color: var(--color-gold);
+}
+
+.list-item-header {
+  @apply flex justify-between items-center mb-1;
+}
+
+.list-item-title {
+  @apply font-semibold;
+  color: var(--color-text-light);
+}
+
+.list-item-amount-ingreso {
+  @apply font-bold;
+  color: #4ade80;
+}
+
+.list-item-amount-egreso {
+  @apply font-bold;
+  color: #f87171;
+}
+
+.list-item-details {
+  @apply flex gap-2 flex-wrap text-xs;
+  color: var(--color-text-gray);
+}
+
+.list-empty {
+  @apply text-center py-8;
+  color: var(--color-text-gray);
+}
+
+/* ========================================
+   Resumen del Día
+   ======================================== */
+.resumen-container {
+  @apply h-screen flex flex-col overflow-hidden;
+  background-color: var(--color-bg-content);
+}
+
+.resumen-header {
+  @apply shrink-0 px-4 pt-4 pb-2 text-center;
+  background-color: var(--color-bg-header);
+}
+
+.resumen-main {
+  @apply flex-1 px-4 py-4 overflow-y-auto;
+}
+
+.resumen-date {
+  @apply text-center text-sm mb-4;
+  color: var(--color-text-gray);
+}
+
+.resumen-cards {
+  @apply grid grid-cols-2 gap-3 mb-6;
+}
+
+.resumen-card {
+  @apply p-4 rounded-lg text-center;
+  background-color: rgba(30, 30, 50, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+.resumen-card-label {
+  @apply text-xs uppercase tracking-wide mb-1;
+  color: var(--color-text-gray);
+}
+
+.resumen-card-value {
+  @apply text-2xl font-bold;
+}
+
+.resumen-card-ingreso .resumen-card-value {
+  color: #4ade80;
+}
+
+.resumen-card-egreso .resumen-card-value {
+  color: #f87171;
+}
+
+.resumen-card-balance .resumen-card-value {
+  color: var(--color-gold-light);
+}
+
+.resumen-card-count .resumen-card-value {
+  color: var(--color-text-light);
+}
+
+.resumen-section-title {
+  @apply text-sm font-bold uppercase tracking-wide mb-3;
+  color: var(--color-gold-light);
+}
+
+.resumen-tipo-list {
+  @apply space-y-2;
+}
+
+.resumen-tipo-item {
+  @apply flex justify-between items-center p-3 rounded-lg;
+  background-color: rgba(30, 30, 50, 0.4);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+.resumen-tipo-name {
+  @apply text-sm;
+  color: var(--color-text-light);
+}
+
+.resumen-tipo-count {
+  @apply text-sm font-bold;
+  color: var(--color-gold-light);
+}
+
+/* ========================================
+   Toast - Notificaciones
+   ======================================== */
+.toast {
+  @apply fixed bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg text-sm font-medium z-50;
+  background-color: rgba(30, 30, 50, 0.95);
+  border: 1px solid var(--color-gold);
+  color: var(--color-text-light);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   Componentes Legacy (compatibilidad)
+   ======================================== */
+.legacy-section {
+  @apply space-y-3;
+}
+
+.legacy-section-title {
+  @apply text-lg font-semibold;
+  color: var(--color-text-light);
+}
+
+.legacy-grid {
+  @apply grid gap-3;
+}
+
+.legacy-card {
+  @apply block rounded-xl p-3 transition-all;
+  background-color: rgba(30, 30, 50, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+.legacy-card:hover {
+  background-color: rgba(40, 40, 60, 0.8);
+  border-color: var(--color-gold);
+}
+
+.legacy-card-header {
+  @apply flex justify-between items-center;
+}
+
+.legacy-card-title {
+  @apply font-semibold;
+  color: var(--color-text-light);
+}
+
+.legacy-card-details {
+  @apply text-xs flex gap-2 flex-wrap;
+  color: var(--color-text-gray);
+}
+
+.legacy-amount-ingreso {
+  @apply font-semibold;
+  color: #4ade80;
+}
+
+.legacy-amount-egreso {
+  @apply font-semibold;
+  color: #f87171;
+}
+
+.legacy-empty {
+  @apply text-sm;
+  color: var(--color-text-gray);
+}
+
+.legacy-totales {
+  @apply p-4 rounded-lg sticky top-0;
+  background-color: rgba(30, 30, 50, 0.9);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+.legacy-totales-title {
+  @apply text-base font-semibold mb-2;
+  color: var(--color-text-light);
+}
+
+.legacy-totales-row {
+  @apply flex gap-3 flex-wrap;
+}
+
+.legacy-totales-ingreso {
+  @apply font-semibold;
+  color: #4ade80;
+}
+
+.legacy-totales-egreso {
+  @apply font-semibold;
+  color: #f87171;
+}
+
+.legacy-totales-balance {
+  @apply font-bold;
+}
+
+.legacy-totales-balance-positive {
+  color: #4ade80;
+}
+
+.legacy-totales-balance-negative {
+  color: #f87171;
+}
+
+.legacy-filters {
+  @apply space-y-3 rounded-xl p-3;
+  background-color: rgba(30, 30, 50, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+.legacy-filters-grid {
+  @apply grid gap-3;
+}
+
+.legacy-filters-label {
+  @apply grid gap-1 text-sm font-medium;
+  color: var(--color-text-light);
+}
+
+.legacy-filters-row {
+  @apply grid grid-cols-2 gap-3;
+}
+
+.legacy-filters-actions {
+  @apply flex justify-end;
+}
+
+.legacy-filters-reset {
+  @apply text-sm transition-colors;
+  color: var(--color-gold-light);
+}
+
+.legacy-filters-reset:hover {
+  color: var(--color-gold);
+}

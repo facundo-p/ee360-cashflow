@@ -1,33 +1,40 @@
-// Botonera: lista de tipos visibles sin scroll; destaca ingreso/egreso y último usado.
+// Botonera: grid de íconos circulares estilo espartano con borde dorado.
 import React from 'react';
+
+const DEFAULT_ICON = '/icons/default.png';
 
 type Props = {
   tipos: Array<{
     id: string;
     nombre: string;
     sentido: 'ingreso' | 'egreso';
+    icono?: string;
   }>;
   onSelect: (id: string) => void;
 };
 
 export default function Botonera({ tipos, onSelect }: Props) {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = DEFAULT_ICON;
+  };
+
   return (
-    <section className="grid gap-3">
-      <div className="grid gap-3 grid-cols-2">
-        {tipos.map((t) => {
-          return (
-            <button
-              key={t.id}
-              onClick={() => onSelect(t.id)}
-              className={`rounded-xl border border-border px-4 py-5 text-left font-semibold shadow-soft transition hover:opacity-90 ${
-                t.sentido === 'egreso' ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'
-              }`}
-            >
-              {t.nombre}
-            </button>
-          );
-        })}
-      </div>
+    <section className="botonera-grid">
+      {tipos.map((t) => {
+        const iconSrc = t.icono ? `/icons/${t.icono}` : DEFAULT_ICON;
+        return (
+          <button
+            key={t.id}
+            onClick={() => onSelect(t.id)}
+            className="btn-spartan"
+          >
+            <div className="btn-spartan-icon">
+              <img src={iconSrc} alt="" onError={handleImageError} />
+            </div>
+            <span className="btn-spartan-label">{t.nombre}</span>
+          </button>
+        );
+      })}
     </section>
   );
 }

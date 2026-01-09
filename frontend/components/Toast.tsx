@@ -5,7 +5,7 @@ type Props = { message: string };
 
 export default function Toast({ message }: Props) {
   return (
-    <div role="status" aria-live="polite">
+    <div role="status" aria-live="polite" className="toast">
       {message}
     </div>
   );

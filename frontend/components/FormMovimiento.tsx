@@ -1,4 +1,4 @@
-// Formulario de movimiento: aplica autofoco/teclado, CTA siempre visible.
+// Formulario de movimiento: estilo espartano con dropdown de tipo.
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { listTipos } from '../lib/api-mock/tipos';
@@ -7,6 +7,8 @@ import { createMovimiento, updateMovimiento, getMovimiento } from '../lib/api-mo
 import { useFocusRules } from '../hooks/useFocusRules';
 import { useSessionMock } from '../hooks/useSessionMock';
 import Toast from './Toast';
+
+const DEFAULT_ICON = '/icons/default.png';
 
 type Props = {
   mode: 'create' | 'edit';
@@ -71,6 +73,10 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
 
   const focusRule = useFocusRules(tipoActual?.monto_sugerido != null);
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = DEFAULT_ICON;
+  };
+
   const onGuardar = async () => {
     const nextErrors: typeof errors = {};
     if (!fecha) nextErrors.fecha = 'La fecha es obligatoria.';
@@ -99,100 +105,129 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
     return mov;
   };
 
+  const iconSrc = tipoActual?.icono ? `/icons/${tipoActual.icono}` : DEFAULT_ICON;
+
   return (
-    <section className="bg-white border border-border shadow-soft rounded-xl p-4 space-y-4">
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold text-gray-900">{mode === 'create' ? 'Nuevo movimiento' : 'Editar movimiento'}</h2>
-        {tipoActual && (
-          <p className="text-sm text-gray-600">
-            Tipo: <strong>{tipoActual.nombre}</strong> ({tipoActual.sentido})
-          </p>
-        )}
-      </div>
+    <>
+      {/* Header con banner */}
+      <header className="form-header">
+        <h1 className="title-primary">
+          {mode === 'create' ? 'Nuevo Movimiento' : 'Editar Movimiento'}
+        </h1>
+      </header>
 
-      <div className="grid gap-4">
-        <label className="grid gap-2 text-sm font-medium text-gray-800">
-          <span className="flex items-center gap-1">
-            Fecha <span className="text-red-600">*</span>
-          </span>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => {
-              setFecha(e.target.value);
-              setErrors((prev) => ({ ...prev, fecha: undefined }));
-            }}
-            className="w-full rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          {errors.fecha && <span className="text-xs text-red-600">{errors.fecha}</span>}
-        </label>
+      <div className="page-divider" />
+      
+      {/* Formulario */}
+      <main className="form-main">
+        <div className="form-fields">
+          {/* Selector de Tipo */}
+          <div>
+            <label className="form-label">
+              Tipo de movimiento<span className="form-label-required">*</span>
+            </label>
+            <select
+              value={tipoId ?? ''}
+              onChange={(e) => setTipoId(e.target.value)}
+              className="form-select"
+            >
+              {tipos.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.nombre} ({t.sentido})
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <label className="grid gap-2 text-sm font-medium text-gray-800">
-          <span className="flex items-center gap-1">
-            Monto <span className="text-red-600">*</span>
-          </span>
-          <input
-            type="number"
-            inputMode="decimal"
-            value={monto}
-            onChange={(e) => {
-              setMonto(e.target.value === '' ? '' : Number(e.target.value));
-              setErrors((prev) => ({ ...prev, monto: undefined }));
-            }}
-            className="w-full rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
-            autoFocus={focusRule.initialTarget === 'monto'}
-          />
-          {errors.monto && <span className="text-xs text-red-600">{errors.monto}</span>}
-        </label>
+          {/* Fecha */}
+          <div>
+            <label className="form-label">
+              Fecha<span className="form-label-required">*</span>
+            </label>
+            <input
+              type="date"
+              value={fecha}
+              onChange={(e) => {
+                setFecha(e.target.value);
+                setErrors((prev) => ({ ...prev, fecha: undefined }));
+              }}
+              className="form-input"
+            />
+            {errors.fecha && <span className="form-error">{errors.fecha}</span>}
+          </div>
 
-        <label className="grid gap-2 text-sm font-medium text-gray-800">
-          <span className="flex items-center gap-1">
-            Medio de pago <span className="text-red-600">*</span>
-          </span>
-          <select
-            value={medioId ?? ''}
-            onChange={(e) => {
-              setMedioId(e.target.value);
-              setErrors((prev) => ({ ...prev, medio_pago: undefined }));
-            }}
-            className="w-full rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            {medios.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.nombre}
-              </option>
-            ))}
-          </select>
-          {errors.medio_pago && <span className="text-xs text-red-600">{errors.medio_pago}</span>}
-        </label>
+          {/* Monto */}
+          <div>
+            <label className="form-label">
+              Monto<span className="form-label-required">*</span>
+            </label>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={monto}
+              onChange={(e) => {
+                setMonto(e.target.value === '' ? '' : Number(e.target.value));
+                setErrors((prev) => ({ ...prev, monto: undefined }));
+              }}
+              className="form-input"
+              autoFocus={focusRule.initialTarget === 'monto'}
+            />
+            {errors.monto && <span className="form-error">{errors.monto}</span>}
+          </div>
 
-        {tipoActual?.es_plan && (
-          <label className="grid gap-2 text-sm font-medium text-gray-800">
-            Nombre del cliente
+          {/* Medio de pago */}
+          <div>
+            <label className="form-label">
+              Medio de pago<span className="form-label-required">*</span>
+            </label>
+            <select
+              value={medioId ?? ''}
+              onChange={(e) => {
+                setMedioId(e.target.value);
+                setErrors((prev) => ({ ...prev, medio_pago: undefined }));
+              }}
+              className="form-select"
+            >
+              {medios.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nombre}
+                </option>
+              ))}
+            </select>
+            {errors.medio_pago && <span className="form-error">{errors.medio_pago}</span>}
+          </div>
+
+          {/* Nombre del cliente */}
+          <div>
+            <label className="form-label">Nombre del cliente</label>
             <input
               value={nombreCliente}
               onChange={(e) => setNombreCliente(e.target.value)}
-              className="w-full rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input"
+              placeholder=""
             />
-          </label>
-        )}
+          </div>
 
-        <label className="grid gap-2 text-sm font-medium text-gray-800">
-          Nota
-          <input
-            value={nota}
-            onChange={(e) => setNota(e.target.value)}
-            className="w-full rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
-      </div>
+          {/* Nota */}
+          <div>
+            <label className="form-label">Nota</label>
+            <input
+              value={nota}
+              onChange={(e) => setNota(e.target.value)}
+              className="form-input"
+              placeholder=""
+            />
+          </div>
+        </div>
+      </main>
 
-      <div className="pt-2">
+      {/* Botón Guardar */}
+      <div className="form-actions">
         <button
           type="button"
           onClick={onGuardar}
           disabled={loading}
-          className="w-full rounded-lg bg-primary text-white py-3 font-semibold hover:opacity-90 transition disabled:opacity-60"
+          className="form-btn-submit"
           autoFocus={focusRule.initialTarget === 'guardar'}
         >
           Guardar
@@ -200,7 +235,7 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
       </div>
 
       {toast && <Toast message={toast} />}
-    </section>
+    </>
   );
 }
 

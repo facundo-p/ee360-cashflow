@@ -23,14 +23,14 @@ export default function FiltrosMovimientos({
   onFechaHasta,
 }: Props) {
   return (
-    <section className="space-y-3 rounded-xl border border-border bg-white p-3 shadow-soft">
-      <div className="grid gap-3">
-        <label className="grid gap-1 text-sm font-medium text-gray-800">
+    <section className="legacy-filters">
+      <div className="legacy-filters-grid">
+        <label className="legacy-filters-label">
           Tipo de movimiento
           <select
             value={filtroTipo}
             onChange={(e) => onTipoChange(e.target.value)}
-            className="w-full rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+            className="form-select"
           >
             <option value="todos">Todos</option>
             {tipos.map((t) => (
@@ -41,33 +41,29 @@ export default function FiltrosMovimientos({
           </select>
         </label>
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="grid gap-1 text-sm font-medium text-gray-800">
+        <div className="legacy-filters-row">
+          <label className="legacy-filters-label">
             Desde
             <input
               type="date"
               value={fechaDesde}
               onChange={(e) => onFechaDesde(e.target.value)}
-              className="rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input"
             />
           </label>
-          <label className="grid gap-1 text-sm font-medium text-gray-800">
+          <label className="legacy-filters-label">
             Hasta
             <input
               type="date"
               value={fechaHasta}
               onChange={(e) => onFechaHasta(e.target.value)}
-              className="rounded-lg border border-border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input"
             />
           </label>
         </div>
 
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={onReset}
-            className="text-sm text-primary hover:opacity-80 transition"
-          >
+        <div className="legacy-filters-actions">
+          <button type="button" onClick={onReset} className="legacy-filters-reset">
             Limpiar
           </button>
         </div>

@@ -1,12 +1,15 @@
-// Formulario de movimiento (crear). Sin scroll; foco/teclado según monto sugerido.
+// Formulario de movimiento (crear). Estilo espartano con BottomNav.
 import React from 'react';
 import FormMovimiento from '../components/FormMovimiento';
+import BottomNav from '../components/BottomNav';
 
 export default function MovimientoNuevoPage() {
   return (
-    <main className="max-w-xl mx-auto px-4 py-6">
+    <div className="form-container">
       <FormMovimiento mode="create" />
-    </main>
+      <div className="page-divider" />
+      <BottomNav />
+    </div>
   );
 }
 

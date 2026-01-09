@@ -12,25 +12,24 @@ export default function ListaMovimientos({ movimientos, tipos, medios }: Props) 
   const tipoById = (id: string) => tipos.find((t) => t.id === id);
   const medioById = (id: string) => medios.find((m) => m.id === id);
   return (
-    <section className="space-y-3">
-      <h3 className="text-lg font-semibold text-gray-900">Movimientos</h3>
-      <div className="grid gap-3">
+    <section className="legacy-section">
+      <h3 className="legacy-section-title">Movimientos</h3>
+
+      <div className="page-divider" />
+
+      <div className="legacy-grid">
         {movimientos.map((m) => {
           const tipo = tipoById(m.tipo_movimiento_id);
           const medio = medioById(m.medio_pago_id);
           return (
-            <Link
-              key={m.id}
-              href={`/movimiento/${m.id}`}
-              className="block rounded-xl border border-border bg-white p-3 shadow-soft hover:opacity-90 transition"
-            >
-              <div className="flex justify-between items-center">
-                <strong className="text-gray-900">{tipo?.nombre ?? 'Tipo'}</strong>
-                <span className={m.sentido === 'ingreso' ? 'text-ingreso font-semibold' : 'text-egreso font-semibold'}>
+            <Link key={m.id} href={`/movimiento/${m.id}`} className="legacy-card">
+              <div className="legacy-card-header">
+                <strong className="legacy-card-title">{tipo?.nombre ?? 'Tipo'}</strong>
+                <span className={m.sentido === 'ingreso' ? 'legacy-amount-ingreso' : 'legacy-amount-egreso'}>
                   ${m.monto.toLocaleString()}
                 </span>
               </div>
-              <div className="text-xs text-gray-600 flex gap-2 flex-wrap">
+              <div className="legacy-card-details">
                 <span>{m.fecha}</span>
                 <span>·</span>
                 <span>{medio?.nombre ?? m.medio_pago_id}</span>
@@ -44,7 +43,7 @@ export default function ListaMovimientos({ movimientos, tipos, medios }: Props) 
             </Link>
           );
         })}
-        {movimientos.length === 0 && <p className="text-sm text-gray-600">Sin movimientos con estos filtros.</p>}
+        {movimientos.length === 0 && <p className="legacy-empty">Sin movimientos con estos filtros.</p>}
       </div>
     </section>
   );

@@ -1,25 +1,19 @@
-// Listado / ver movimientos con totales sticky y filtros rápidos.
+// Listado de movimientos con estilo espartano, filtros y exportación CSV.
 import React, { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
-import { TotalesDia } from '../components/TotalesDia';
-import FiltrosMovimientos from '../components/FiltrosMovimientos';
-import ListaMovimientos from '../components/ListaMovimientos';
+import Link from 'next/link';
 import { listMovimientos } from '../lib/api-mock/movimientos';
 import { listTipos } from '../lib/api-mock/tipos';
 import { listMedios } from '../lib/api-mock/medios';
-import { getTotalesDelDia } from '../lib/api-mock/store';
-import { useSessionMock } from '../hooks/useSessionMock';
+import BottomNav from '../components/BottomNav';
 
 export default function MovimientosPage() {
-  const router = useRouter();
-  const { user } = useSessionMock();
   const [movs, setMovs] = useState<any[]>([]);
   const [tipos, setTipos] = useState<any[]>([]);
   const [medios, setMedios] = useState<any[]>([]);
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const hoy = new Date().toISOString().slice(0, 10);
-  const [fechaDesde, setFechaDesde] = useState<string>(hoy);
-  const [fechaHasta, setFechaHasta] = useState<string>(hoy);
+  const [fechaDesde, setFechaDesde] = useState<string>('');
+  const [fechaHasta, setFechaHasta] = useState<string>('');
 
   useEffect(() => {
     listMovimientos().then(setMovs);
@@ -28,79 +22,120 @@ export default function MovimientosPage() {
   }, []);
 
   const visibles = useMemo(() => {
-    return movs.filter((m) => {
-      const okTipo = filtroTipo === 'todos' ? true : m.tipo_movimiento_id === filtroTipo;
-      const okFecha = (!fechaDesde || m.fecha >= fechaDesde) && (!fechaHasta || m.fecha <= fechaHasta);
-      return okTipo && okFecha;
-    });
+    return movs
+      .filter((m) => {
+        const okTipo = filtroTipo === 'todos' ? true : m.tipo_movimiento_id === filtroTipo;
+        const okFechaDesde = !fechaDesde || m.fecha >= fechaDesde;
+        const okFechaHasta = !fechaHasta || m.fecha <= fechaHasta;
+        return okTipo && okFechaDesde && okFechaHasta;
+      })
+      .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id));
   }, [movs, filtroTipo, fechaDesde, fechaHasta]);
 
-  const totalesFiltrados = useMemo(() => {
-    const tot = getTotalesDelDia(hoy);
-    const subset = visibles;
-    const ingresos = subset.filter((m) => m.sentido === 'ingreso').reduce((a, b) => a + (b.monto ?? 0), 0);
-    const egresos = subset.filter((m) => m.sentido === 'egreso').reduce((a, b) => a + (b.monto ?? 0), 0);
-    return { ingresos, egresos, balance: ingresos - egresos, fecha: tot.fecha ?? hoy };
-  }, [visibles, hoy]);
+  const tipoById = (id: string) => tipos.find((t) => t.id === id);
+  const medioById = (id: string) => medios.find((m) => m.id === id);
+
+  const exportCSV = () => {
+    const rows = visibles.map((m) => {
+      const tipo = tipoById(m.tipo_movimiento_id);
+      const medio = medioById(m.medio_pago_id);
+      return {
+        fecha: m.fecha,
+        sentido: m.sentido,
+        tipo_movimiento: tipo?.nombre ?? m.tipo_movimiento_id,
+        medio_pago: medio?.nombre ?? m.medio_pago_id,
+        monto: m.monto,
+        usuario: m.usuario_creador_id,
+        nombre_cliente: m.nombre_cliente ?? '',
+        nota: m.nota ?? '',
+      };
+    });
+    const defaultRow = { fecha: '', sentido: '', tipo_movimiento: '', medio_pago: '', monto: '', usuario: '', nombre_cliente: '', nota: '' };
+    const header = Object.keys(rows[0] ?? defaultRow);
+    const csv = [header.join(','), ...rows.map((r) => header.map((h) => JSON.stringify((r as any)[h] ?? '')).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `movimientos_${hoy}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <main className="max-w-xl mx-auto px-4 py-6 space-y-4">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-primary hover:opacity-80 transition"
-          onClick={() => router.push('/home')}
-        >
-          ← Volver a botonera
-        </button>
-        {user?.rol === 'admin' && (
-          <button
-            type="button"
-            className="ml-auto rounded-lg bg-primary text-white px-3 py-2 text-sm font-semibold hover:opacity-90 transition"
-            onClick={() => {
-              // Export mock: genera CSV del subset filtrado.
-              const rows = visibles.map((m) => {
-                const tipo = tipos.find((t) => t.id === m.tipo_movimiento_id);
-                const medio = medios.find((md) => md.id === m.medio_pago_id);
-                return {
-                  fecha: m.fecha,
-                  sentido: m.sentido,
-                  tipo_movimiento: tipo?.nombre ?? m.tipo_movimiento_id,
-                  medio_pago: medio?.nombre ?? m.medio_pago_id,
-                  monto: m.monto,
-                  usuario: m.usuario_creador_id,
-                  nombre_cliente: m.nombre_cliente ?? '',
-                  nota: m.nota ?? '',
-                };
-              });
-              const header = Object.keys(rows[0] ?? { fecha: '', sentido: '', tipo_movimiento: '', medio_pago: '', monto: '', usuario: '', nombre_cliente: '', nota: '' });
-              const csv = [header.join(','), ...rows.map((r) => header.map((h) => JSON.stringify((r as any)[h] ?? '')).join(','))].join('\n');
-              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = 'movimientos.csv';
-              link.click();
-              URL.revokeObjectURL(url);
-            }}
+    <div className="list-container">
+      <header className="list-header">
+        <h1 className="title-primary">Movimientos</h1>
+      </header>
+
+      <main className="list-main">
+        {/* Filtros */}
+        <div className="list-filters">
+          <select
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
+            className="list-filter-select"
           >
-            Exportar CSV
+            <option value="todos">Todos los tipos</option>
+            {tipos.map((t) => (
+              <option key={t.id} value={t.id}>{t.nombre}</option>
+            ))}
+          </select>
+          <input
+            type="date"
+            value={fechaDesde}
+            onChange={(e) => setFechaDesde(e.target.value)}
+            className="list-filter-input"
+            placeholder="Desde"
+          />
+          <input
+            type="date"
+            value={fechaHasta}
+            onChange={(e) => setFechaHasta(e.target.value)}
+            className="list-filter-input"
+            placeholder="Hasta"
+          />
+          <button onClick={exportCSV} className="list-btn-export">
+            CSV
           </button>
-        )}
-      </div>
-      <TotalesDia ingresos={totalesFiltrados.ingresos} egresos={totalesFiltrados.egresos} balance={totalesFiltrados.balance} />
-      <FiltrosMovimientos
-        tipos={tipos}
-        filtroTipo={filtroTipo}
-        onTipoChange={(id) => setFiltroTipo(id)}
-        onReset={() => setFiltroTipo('todos')}
-        fechaDesde={fechaDesde}
-        fechaHasta={fechaHasta}
-        onFechaDesde={setFechaDesde}
-        onFechaHasta={setFechaHasta}
-      />
-      <ListaMovimientos movimientos={visibles} tipos={tipos} medios={medios} />
-    </main>
+        </div>
+
+        {/* Lista de movimientos */}
+        <div className="list-items">
+          {visibles.map((m) => {
+            const tipo = tipoById(m.tipo_movimiento_id);
+            const medio = medioById(m.medio_pago_id);
+            return (
+              <Link key={m.id} href={`/movimiento/${m.id}`} className="list-item">
+                <div className="list-item-header">
+                  <span className="list-item-title">{tipo?.nombre ?? 'Tipo'}</span>
+                  <span className={m.sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
+                    {m.sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
+                  </span>
+                </div>
+                <div className="list-item-details">
+                  <span>{m.fecha}</span>
+                  <span>·</span>
+                  <span>{medio?.nombre ?? m.medio_pago_id}</span>
+                  {m.nombre_cliente && (
+                    <>
+                      <span>·</span>
+                      <span>{m.nombre_cliente}</span>
+                    </>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+          {visibles.length === 0 && (
+            <p className="list-empty">Sin movimientos con estos filtros.</p>
+          )}
+        </div>
+      </main>
+
+      <div className="page-divider" />
+      <BottomNav />
+    </div>
   );
 }
 
