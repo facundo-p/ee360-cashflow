@@ -13,9 +13,11 @@ const DEFAULT_ICON = '/icons/default.png';
 type Props = {
   mode: 'create' | 'edit';
   movimientoId?: string;
+  embedded?: boolean;
+  onSuccess?: () => void;
 };
 
-export default function FormMovimiento({ mode, movimientoId }: Props) {
+export default function FormMovimiento({ mode, movimientoId, embedded = false, onSuccess }: Props) {
   const router = useRouter();
   const { user } = useSessionMock();
   const [tipos, setTipos] = useState<any[]>([]);
@@ -28,7 +30,7 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
   const [nota, setNota] = useState<string>('');
   const [toast, setToast] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ fecha?: string; monto?: string; medio_pago?: string }>({});
+  const [errors, setErrors] = useState<{ fecha?: string; monto?: string; medio_pago?: string; nombre_cliente?: string }>({});
 
   // Cargar datos
   useEffect(() => {
@@ -82,6 +84,7 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
     if (!fecha) nextErrors.fecha = 'La fecha es obligatoria.';
     if (monto === '') nextErrors.monto = 'El monto es obligatorio.';
     if (!medioId) nextErrors.medio_pago = 'El medio de pago es obligatorio.';
+    if (tipoActual.es_plan  && nombreCliente === '') nextErrors.nombre_cliente = 'El nombre de cliente es obligatorio.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !tipoActual) return;
     setLoading(true);
@@ -101,7 +104,17 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
         : await updateMovimiento(movimientoId!, basePayload);
     setToast('Movimiento registrado ✔');
     setLoading(false);
-    setTimeout(() => router.push('/home'), 600);
+    
+    if (embedded && onSuccess) {
+      // Reset form for embedded mode
+      setMonto(tipoActual?.monto_sugerido ?? '');
+      setNombreCliente('');
+      setNota('');
+      onSuccess();
+      setTimeout(() => setToast(''), 2000);
+    } else {
+      setTimeout(() => router.push('/home'), 600);
+    }
     return mov;
   };
 
@@ -109,17 +122,36 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
 
   return (
     <>
-      {/* Header con banner */}
-      <header className="form-header">
-        <h1 className="title-primary">
-          {mode === 'create' ? 'Nuevo Movimiento' : 'Editar Movimiento'}
-        </h1>
-      </header>
-
-      <div className="page-divider" />
+      {/* Header con banner - solo si no está embebido */}
+      {!embedded && (
+        <>
+          <header className="form-header">
+            <h1 className="title-primary">
+              {mode === 'create' ? 'Nuevo Movimiento' : 'Editar Movimiento'}
+            </h1>
+          </header>
+          <div className="page-divider" />
+        </>
+      )}
+      
+      {/* Título para modo embebido */}
+      {embedded && (
+        <h2 className="form-embedded-title">Nuevo Movimiento</h2>
+      )}
       
       {/* Formulario */}
-      <main className="form-main">
+      <main className={embedded ? "form-main-embedded" : "form-main"}>
+        {/* Icon preview */}
+        <div className="quick-form-icon-container">
+          <div className="quick-form-icon-wrapper">
+            <img 
+              src={iconSrc} 
+              alt="" 
+              onError={handleImageError}
+              className="quick-form-icon"
+            />
+          </div>
+        </div>
         <div className="form-fields">
           {/* Selector de Tipo */}
           <div>
@@ -199,13 +231,16 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
 
           {/* Nombre del cliente */}
           <div>
-            <label className="form-label">Nombre del cliente</label>
+            <label className="form-label">
+              Nombre del cliente<span className="form-label-required">*</span>
+              </label>
             <input
               value={nombreCliente}
               onChange={(e) => setNombreCliente(e.target.value)}
               className="form-input"
               placeholder=""
             />
+            {errors.nombre_cliente && <span className="form-error">{errors.nombre_cliente}</span>}
           </div>
 
           {/* Nota */}
@@ -222,7 +257,7 @@ export default function FormMovimiento({ mode, movimientoId }: Props) {
       </main>
 
       {/* Botón Guardar */}
-      <div className="form-actions">
+      <div className={embedded ? "form-actions-embedded" : "form-actions"}>
         <button
           type="button"
           onClick={onGuardar}

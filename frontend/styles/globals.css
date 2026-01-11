@@ -11,7 +11,7 @@
 :root {
   --color-bg-header: #1a1a1a;
   --color-bg-content: #2a2d3e;
-  --color-bg-icon: #e8e8e8;
+  --color-bg-icon: #2a2d3e;
   --color-bg-nav: #1a1a1a;
   --color-gold: #c9a227;
   --color-gold-light: #d4a84b;
@@ -88,12 +88,12 @@
   left: 2px;
   right: 2px;
   bottom: 2px;
-  background-color: var(--color-bg-content);
+  background-color: var(--color-bg-icon);
 }
 
 .btn-spartan-icon img {
   @apply relative z-10 w-full h-full object-contain rounded-full;
-  background-color: var(--color-bg-content);
+  background-color: var(--color-bg-icon);
 }
 
 .btn-spartan:hover .btn-spartan-icon {
@@ -180,6 +180,16 @@
   @apply flex-1 px-4 py-4 overflow-y-auto;
 }
 
+.form-main-embedded {
+  @apply flex-1 overflow-y-auto;
+}
+
+.form-embedded-title {
+  @apply text-xl font-bold uppercase tracking-widest mb-4 text-center;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
 .form-fields {
   @apply space-y-4;
 }
@@ -236,6 +246,10 @@
 
 .form-actions {
   @apply shrink-0 px-4 py-4;
+}
+
+.form-actions-embedded {
+  @apply shrink-0 py-4;
 }
 
 .form-btn-submit {
@@ -569,4 +583,364 @@
 
 .legacy-filters-reset:hover {
   color: var(--color-gold);
+}
+
+/* ========================================
+   Desktop Layout
+   ======================================== */
+.desktop-layout {
+  @apply h-screen flex overflow-hidden;
+  background-color: var(--color-bg-content);
+}
+
+.desktop-sidebar {
+  @apply w-64 shrink-0 flex flex-col;
+  background-color: var(--color-bg-header);
+  border-right: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+.desktop-sidebar-header {
+  @apply px-6 py-6 text-center;
+  border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+.desktop-logo {
+  @apply text-2xl font-bold uppercase tracking-widest;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.desktop-logo-sub {
+  @apply block text-xs tracking-widest uppercase mt-1;
+  color: var(--color-text-gray);
+}
+
+.desktop-nav {
+  @apply flex-1 py-4 space-y-1 px-3;
+}
+
+.desktop-nav-item {
+  @apply w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all;
+  color: var(--color-text-gray);
+}
+
+.desktop-nav-item:hover {
+  background-color: rgba(201, 162, 39, 0.1);
+  color: var(--color-text-light);
+}
+
+.desktop-nav-item-active {
+  @apply w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left;
+  background-color: rgba(201, 162, 39, 0.2);
+  color: var(--color-gold-light);
+  border-left: 3px solid var(--color-gold);
+}
+
+.desktop-nav-icon {
+  @apply w-5 h-5;
+}
+
+.desktop-sidebar-footer {
+  @apply px-6 py-4 text-center;
+  border-top: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+.desktop-version {
+  @apply text-xs;
+  color: var(--color-text-gray);
+}
+
+.desktop-main {
+  @apply flex-1 overflow-y-auto p-6;
+}
+
+/* ========================================
+   Dashboard
+   ======================================== */
+.dashboard {
+  @apply h-full flex flex-col;
+}
+
+.dashboard-header {
+  @apply mb-6;
+}
+
+.dashboard-title {
+  @apply text-3xl font-bold tracking-widest uppercase;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.dashboard-subtitle {
+  @apply text-sm mt-1;
+  color: var(--color-text-gray);
+}
+
+.dashboard-grid {
+  @apply flex-1 grid gap-6;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+}
+
+.dashboard-panel {
+  @apply rounded-xl p-5;
+  background-color: rgba(30, 30, 50, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+.dashboard-panel-form {
+  grid-row: 1 / 3;
+}
+
+.dashboard-panel-summary {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.dashboard-panel-list {
+  grid-column: 2;
+  grid-row: 2;
+  @apply overflow-hidden flex flex-col;
+}
+
+/* ========================================
+   Quick Movement Form (Desktop)
+   ======================================== */
+.quick-form {
+  @apply h-full flex flex-col;
+}
+
+.quick-form-title {
+  @apply text-xl font-bold uppercase tracking-widest mb-6 text-center;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.quick-form-content {
+  @apply flex-1 flex flex-col;
+}
+
+.quick-form-icon-container {
+  @apply flex justify-center mb-6;
+}
+
+.quick-form-icon-wrapper {
+  @apply w-16 h-16 rounded-full p-1;
+  background: linear-gradient(160deg, #e8c547 0%, #b8941f 25%, #8b6914 50%, #b8941f 75%, #e8c547 100%);
+}
+
+.quick-form-icon {
+  @apply w-full h-full object-contain rounded-full;
+  background-color: var(--color-bg-icon);
+}
+
+.quick-form-fields {
+  @apply space-y-4 flex-1;
+}
+
+.quick-form-row {
+  @apply space-y-1;
+}
+
+.quick-form-label {
+  @apply block text-sm font-medium;
+  color: var(--color-text-gray);
+}
+
+.quick-form-input {
+  @apply w-full px-4 py-3 rounded-lg text-white;
+  background-color: rgba(30, 30, 50, 0.8);
+  border: 1px solid var(--color-gold);
+  outline: none;
+}
+
+.quick-form-input:focus {
+  border-color: var(--color-gold-light);
+  box-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+}
+
+.quick-form-select {
+  @apply w-full px-4 py-3 rounded-lg text-white appearance-none cursor-pointer;
+  background-color: rgba(30, 30, 50, 0.8);
+  border: 1px solid var(--color-gold);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d4a84b' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
+}
+
+.quick-form-select:focus {
+  border-color: var(--color-gold-light);
+  box-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+  outline: none;
+}
+
+.quick-form-submit {
+  @apply w-full py-4 mt-6 text-lg font-bold uppercase tracking-widest transition-all rounded-lg;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+  background: linear-gradient(180deg, #8b1a1a 0%, #5c1010 50%, #8b1a1a 100%);
+  border: 2px solid var(--color-gold);
+}
+
+.quick-form-submit:hover:not(:disabled) {
+  background: linear-gradient(180deg, #a52020 0%, #6b1010 50%, #a52020 100%);
+}
+
+.quick-form-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quick-form-toast {
+  @apply mt-4 text-center text-sm py-2 px-4 rounded-lg;
+  background-color: rgba(74, 222, 128, 0.2);
+  border: 1px solid #4ade80;
+  color: #4ade80;
+}
+
+/* ========================================
+   Summary Compact (Desktop Dashboard)
+   ======================================== */
+.summary-compact {
+  @apply h-full flex flex-col;
+}
+
+.summary-compact-title {
+  @apply text-lg font-bold uppercase tracking-widest mb-2;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.summary-compact-date {
+  @apply text-xs mb-4;
+  color: var(--color-text-gray);
+}
+
+.summary-compact-grid {
+  @apply grid grid-cols-2 gap-3 mb-4;
+}
+
+.summary-compact-item {
+  @apply p-3 rounded-lg text-center;
+  background-color: rgba(20, 20, 40, 0.5);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+.summary-compact-label {
+  @apply block text-xs uppercase tracking-wide mb-1;
+  color: var(--color-text-gray);
+}
+
+.summary-compact-value {
+  @apply block text-lg font-bold;
+}
+
+.summary-compact-ingreso .summary-compact-value {
+  color: #4ade80;
+}
+
+.summary-compact-egreso .summary-compact-value {
+  color: #f87171;
+}
+
+.summary-compact-balance .summary-compact-value {
+  color: var(--color-gold-light);
+}
+
+.summary-compact-count .summary-compact-value {
+  color: var(--color-text-light);
+}
+
+.summary-compact-breakdown {
+  @apply space-y-1 mt-auto;
+}
+
+.summary-compact-tipo {
+  @apply flex justify-between items-center px-3 py-2 rounded text-sm;
+  background-color: rgba(20, 20, 40, 0.3);
+  color: var(--color-text-light);
+}
+
+.summary-compact-tipo-count {
+  @apply font-semibold;
+  color: var(--color-gold-light);
+}
+
+/* ========================================
+   Movements Compact (Desktop Dashboard)
+   ======================================== */
+.movements-compact {
+  @apply h-full flex flex-col;
+}
+
+.movements-compact-title {
+  @apply text-lg font-bold uppercase tracking-widest mb-4;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.movements-compact-empty {
+  @apply text-center py-8;
+  color: var(--color-text-gray);
+}
+
+.movements-compact-list {
+  @apply flex-1 space-y-2 overflow-y-auto;
+}
+
+.movements-compact-item {
+  @apply flex justify-between items-center p-3 rounded-lg transition-all;
+  background-color: rgba(20, 20, 40, 0.5);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+.movements-compact-item:hover {
+  background-color: rgba(30, 30, 50, 0.8);
+  border-color: var(--color-gold);
+}
+
+.movements-compact-name {
+  @apply text-sm truncate max-w-[60%];
+  color: var(--color-text-light);
+}
+
+.movements-compact-ingreso {
+  @apply text-sm font-bold;
+  color: #4ade80;
+}
+
+.movements-compact-egreso {
+  @apply text-sm font-bold;
+  color: #f87171;
+}
+
+.movements-compact-more {
+  @apply block text-center text-sm py-3 mt-2 rounded-lg transition-colors;
+  color: var(--color-gold-light);
+}
+
+.movements-compact-more:hover {
+  background-color: rgba(201, 162, 39, 0.1);
+}
+
+/* ========================================
+   Desktop Content Containers
+   ======================================== */
+.desktop-content {
+  @apply h-full flex flex-col;
+}
+
+.desktop-content-header {
+  @apply mb-6;
+}
+
+.desktop-content-title {
+  @apply text-2xl font-bold tracking-widest uppercase;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.desktop-content-main {
+  @apply flex-1 overflow-y-auto;
 }

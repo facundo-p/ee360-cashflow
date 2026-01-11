@@ -1,16 +1,12 @@
-// Formulario de movimiento (crear). Estilo espartano con BottomNav.
+// Formulario de movimiento (crear). Con layout responsivo.
 import React from 'react';
 import FormMovimiento from '../components/FormMovimiento';
-import BottomNav from '../components/BottomNav';
+import { AppLayout } from '../components/layouts';
 
 export default function MovimientoNuevoPage() {
   return (
-    <div className="form-container">
+    <AppLayout mobileContainerClass="form-container">
       <FormMovimiento mode="create" />
-      <div className="page-divider" />
-      <BottomNav />
-    </div>
+    </AppLayout>
   );
 }
-
-

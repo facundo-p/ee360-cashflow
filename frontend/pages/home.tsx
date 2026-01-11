@@ -1,11 +1,13 @@
-// Botonera principal funcional (mock): muestra tipos, resalta último, navega a formulario.
+// Home: página principal con layout responsivo
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Botonera from '../components/Botonera';
-import BottomNav from '../components/BottomNav';
+import Dashboard from '../components/Dashboard';
+import { AppLayout } from '../components/layouts';
+import { useIsDesktop } from '../hooks/useMediaQuery';
 import { listTipos } from '../lib/api-mock/tipos';
 
-export default function HomePage() {
+function MobileHomeContent() {
   const router = useRouter();
   const [tipos, setTipos] = useState<any[]>([]);
 
@@ -18,7 +20,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="page-container">
+    <>
       <header className="page-header">
         <h1 className="title-primary">Cashflow EE360</h1>
         <h2 className="title-secondary">Tipo de movimiento</h2>
@@ -29,12 +31,16 @@ export default function HomePage() {
       <main className="page-main">
         <Botonera tipos={tipos} onSelect={handleSelect} />
       </main>
-
-      <div className="page-divider" />
-
-      <BottomNav />
-    </div>
+    </>
   );
 }
 
+export default function HomePage() {
+  const isDesktop = useIsDesktop();
 
+  return (
+    <AppLayout>
+      {isDesktop ? <Dashboard /> : <MobileHomeContent />}
+    </AppLayout>
+  );
+}

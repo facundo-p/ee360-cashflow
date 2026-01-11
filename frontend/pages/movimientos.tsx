@@ -1,12 +1,14 @@
-// Listado de movimientos con estilo espartano, filtros y exportación CSV.
+// Listado de movimientos con layout responsivo, filtros y exportación CSV.
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { listMovimientos } from '../lib/api-mock/movimientos';
 import { listTipos } from '../lib/api-mock/tipos';
 import { listMedios } from '../lib/api-mock/medios';
-import BottomNav from '../components/BottomNav';
+import { AppLayout } from '../components/layouts';
+import { useIsDesktop } from '../hooks/useMediaQuery';
 
-export default function MovimientosPage() {
+function MovimientosContent() {
+  const isDesktop = useIsDesktop();
   const [movs, setMovs] = useState<any[]>([]);
   const [tipos, setTipos] = useState<any[]>([]);
   const [medios, setMedios] = useState<any[]>([]);
@@ -62,8 +64,82 @@ export default function MovimientosPage() {
     URL.revokeObjectURL(url);
   };
 
+  if (isDesktop) {
+    return (
+      <div className="desktop-content">
+        <header className="desktop-content-header">
+          <h1 className="desktop-content-title">Movimientos</h1>
+        </header>
+
+        <div className="list-filters">
+          <select
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
+            className="list-filter-select"
+          >
+            <option value="todos">Todos los tipos</option>
+            {tipos.map((t) => (
+              <option key={t.id} value={t.id}>{t.nombre}</option>
+            ))}
+          </select>
+          <input
+            type="date"
+            value={fechaDesde}
+            onChange={(e) => setFechaDesde(e.target.value)}
+            className="list-filter-input"
+            placeholder="Desde"
+          />
+          <input
+            type="date"
+            value={fechaHasta}
+            onChange={(e) => setFechaHasta(e.target.value)}
+            className="list-filter-input"
+            placeholder="Hasta"
+          />
+          <button onClick={exportCSV} className="list-btn-export">
+            Exportar CSV
+          </button>
+        </div>
+
+        <div className="desktop-content-main">
+          <div className="list-items">
+            {visibles.map((m) => {
+              const tipo = tipoById(m.tipo_movimiento_id);
+              const medio = medioById(m.medio_pago_id);
+              return (
+                <Link key={m.id} href={`/movimiento/${m.id}`} className="list-item">
+                  <div className="list-item-header">
+                    <span className="list-item-title">{tipo?.nombre ?? 'Tipo'}</span>
+                    <span className={m.sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
+                      {m.sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="list-item-details">
+                    <span>{m.fecha}</span>
+                    <span>·</span>
+                    <span>{medio?.nombre ?? m.medio_pago_id}</span>
+                    {m.nombre_cliente && (
+                      <>
+                        <span>·</span>
+                        <span>{m.nombre_cliente}</span>
+                      </>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+            {visibles.length === 0 && (
+              <p className="list-empty">Sin movimientos con estos filtros.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile layout
   return (
-    <div className="list-container">
+    <>
       <header className="list-header">
         <h1 className="title-primary">Movimientos</h1>
       </header>
@@ -132,11 +208,14 @@ export default function MovimientosPage() {
           )}
         </div>
       </main>
-
-      <div className="page-divider" />
-      <BottomNav />
-    </div>
+    </>
   );
 }
 
-
+export default function MovimientosPage() {
+  return (
+    <AppLayout mobileContainerClass="list-container">
+      <MovimientosContent />
+    </AppLayout>
+  );
+}
