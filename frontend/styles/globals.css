@@ -640,6 +640,34 @@
   @apply w-5 h-5;
 }
 
+.desktop-nav-chevron {
+  @apply w-4 h-4 ml-auto transition-transform;
+}
+
+.desktop-nav-chevron-open {
+  transform: rotate(180deg);
+}
+
+.desktop-nav-children {
+  @apply ml-8 mt-1 space-y-1;
+}
+
+.desktop-nav-child {
+  @apply w-full px-4 py-2 rounded-lg text-left text-sm transition-all;
+  color: var(--color-text-gray);
+}
+
+.desktop-nav-child:hover {
+  background-color: rgba(201, 162, 39, 0.1);
+  color: var(--color-text-light);
+}
+
+.desktop-nav-child-active {
+  @apply w-full px-4 py-2 rounded-lg text-left text-sm;
+  background-color: rgba(201, 162, 39, 0.15);
+  color: var(--color-gold-light);
+}
+
 .desktop-sidebar-footer {
   @apply px-6 py-4 text-center;
   border-top: 1px solid rgba(201, 162, 39, 0.2);
@@ -943,4 +971,501 @@
 
 .desktop-content-main {
   @apply flex-1 overflow-y-auto;
+}
+
+.desktop-user-info {
+  @apply block text-xs mb-2;
+  color: var(--color-text-gray);
+}
+
+/* ========================================
+   Admin Layout & Components
+   ======================================== */
+.admin-loading {
+  @apply h-screen flex items-center justify-center;
+  background-color: var(--color-bg-content);
+  color: var(--color-text-light);
+}
+
+/* Admin Page Content (dentro del layout principal) */
+.admin-page-content {
+  @apply h-full flex flex-col;
+}
+
+.admin-page-header {
+  @apply mb-6;
+}
+
+.admin-page-title {
+  @apply text-2xl font-bold tracking-widest uppercase;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.admin-form-description {
+  @apply text-sm mb-4;
+  color: #9ca3af;
+}
+
+.admin-layout {
+  @apply h-screen flex overflow-hidden;
+  background-color: #1e1e2e;
+}
+
+.admin-sidebar {
+  @apply w-56 shrink-0 flex flex-col;
+  background-color: #13131a;
+  border-right: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-sidebar-header {
+  @apply px-4 py-5 text-center;
+  border-bottom: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-logo {
+  @apply text-xl font-bold uppercase tracking-widest;
+  color: #8b5cf6;
+}
+
+.admin-logo-sub {
+  @apply block text-xs tracking-widest uppercase mt-1;
+  color: #6b7280;
+}
+
+.admin-nav {
+  @apply flex-1 py-4 space-y-1 px-2;
+}
+
+.admin-nav-item {
+  @apply w-full px-4 py-2.5 rounded-lg text-left text-sm transition-all;
+  color: #9ca3af;
+}
+
+.admin-nav-item:hover {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #c4b5fd;
+}
+
+.admin-nav-item-active {
+  @apply w-full px-4 py-2.5 rounded-lg text-left text-sm;
+  background-color: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  border-left: 3px solid #8b5cf6;
+}
+
+.admin-sidebar-footer {
+  @apply px-4 py-4;
+  border-top: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-back-btn {
+  @apply w-full px-3 py-2 rounded-lg text-sm text-left transition-all;
+  color: #9ca3af;
+}
+
+.admin-back-btn:hover {
+  background-color: rgba(100, 100, 140, 0.1);
+  color: #e5e7eb;
+}
+
+.admin-main {
+  @apply flex-1 overflow-y-auto;
+}
+
+.admin-header {
+  @apply px-6 py-4;
+  background-color: #1a1a24;
+  border-bottom: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-title {
+  @apply text-xl font-semibold;
+  color: #e5e7eb;
+}
+
+.admin-content {
+  @apply p-6;
+}
+
+/* Admin Dashboard */
+.admin-dashboard {
+  @apply space-y-6;
+}
+
+.admin-stats-grid {
+  @apply grid grid-cols-3 gap-4;
+}
+
+.admin-stat-card {
+  @apply p-5 rounded-xl;
+  background-color: #1a1a24;
+  border: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-stat-card h3 {
+  @apply text-sm font-medium mb-2;
+  color: #9ca3af;
+}
+
+.admin-stat-value {
+  @apply text-3xl font-bold;
+  color: #8b5cf6;
+}
+
+.admin-stat-label {
+  @apply text-xs mt-1;
+  color: #6b7280;
+}
+
+.admin-info-section {
+  @apply p-5 rounded-xl;
+  background-color: #1a1a24;
+  border: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-info-section h3 {
+  @apply text-lg font-semibold mb-3;
+  color: #e5e7eb;
+}
+
+.admin-info-section p {
+  @apply text-sm mb-3;
+  color: #9ca3af;
+}
+
+.admin-info-section ul {
+  @apply text-sm space-y-2;
+  color: #9ca3af;
+}
+
+.admin-info-section li strong {
+  color: #c4b5fd;
+}
+
+/* Admin Page Common */
+.admin-page {
+  @apply space-y-4;
+}
+
+.admin-toolbar {
+  @apply flex gap-3 mb-4;
+}
+
+/* Admin Buttons */
+.admin-btn-primary {
+  @apply px-4 py-2 rounded-lg text-sm font-medium transition-all;
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.admin-btn-primary:hover:not(:disabled) {
+  background-color: #7c3aed;
+}
+
+.admin-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-btn-secondary {
+  @apply px-4 py-2 rounded-lg text-sm font-medium transition-all;
+  background-color: rgba(100, 100, 140, 0.2);
+  color: #e5e7eb;
+}
+
+.admin-btn-secondary:hover {
+  background-color: rgba(100, 100, 140, 0.3);
+}
+
+.admin-btn-sm {
+  @apply px-3 py-1.5 rounded text-xs font-medium transition-all;
+  background-color: rgba(100, 100, 140, 0.2);
+  color: #e5e7eb;
+}
+
+.admin-btn-sm:hover {
+  background-color: rgba(100, 100, 140, 0.3);
+}
+
+.admin-btn-danger {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.admin-btn-danger:hover {
+  background-color: rgba(239, 68, 68, 0.3);
+}
+
+.admin-btn-success {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.admin-btn-success:hover {
+  background-color: rgba(34, 197, 94, 0.3);
+}
+
+/* Admin Forms */
+.admin-form-card {
+  @apply p-5 rounded-xl mb-4;
+  background-color: #1a1a24;
+  border: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-form-card h3 {
+  @apply text-lg font-semibold mb-4;
+  color: #e5e7eb;
+}
+
+.admin-form-field {
+  @apply mb-4;
+}
+
+.admin-form-field label {
+  @apply block text-sm font-medium mb-1.5;
+  color: #9ca3af;
+}
+
+.admin-form-field small {
+  @apply block text-xs mt-1;
+  color: #6b7280;
+}
+
+.admin-form-row {
+  @apply grid grid-cols-2 gap-4;
+}
+
+.admin-input {
+  @apply w-full px-3 py-2 rounded-lg text-sm;
+  background-color: #13131a;
+  border: 1px solid rgba(100, 100, 140, 0.3);
+  color: #e5e7eb;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+}
+
+.admin-input::placeholder {
+  color: #6b7280;
+}
+
+.admin-select {
+  @apply w-full px-3 py-2 rounded-lg text-sm appearance-none cursor-pointer;
+  background-color: #13131a;
+  border: 1px solid rgba(100, 100, 140, 0.3);
+  color: #e5e7eb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%239ca3af' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 20px;
+}
+
+.admin-select:focus {
+  outline: none;
+  border-color: #8b5cf6;
+}
+
+.admin-checkbox-label {
+  @apply flex items-center gap-2 text-sm cursor-pointer;
+  color: #9ca3af;
+}
+
+.admin-checkbox-label input[type="checkbox"] {
+  @apply w-4 h-4 rounded;
+  accent-color: #8b5cf6;
+}
+
+.admin-input-group {
+  @apply flex items-center gap-2;
+}
+
+.admin-input-group span {
+  @apply text-sm;
+  color: #9ca3af;
+}
+
+.admin-form-actions {
+  @apply flex justify-end gap-3 mt-4 pt-4;
+  border-top: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-error {
+  @apply text-sm mt-2;
+  color: #fca5a5;
+}
+
+/* Admin Icon Selector */
+.admin-icon-selector {
+  @apply grid grid-cols-6 gap-2 mt-2 max-h-48 overflow-y-auto p-2 rounded-lg;
+  background-color: #13131a;
+  border: 1px solid rgba(100, 100, 140, 0.3);
+}
+
+.admin-icon-option {
+  @apply flex flex-col items-center gap-1 p-2 rounded-lg transition-all cursor-pointer;
+  background-color: transparent;
+}
+
+.admin-icon-option:hover {
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.admin-icon-option img {
+  @apply w-10 h-10 object-contain rounded;
+  background-color: var(--color-bg-icon);
+}
+
+.admin-icon-option span {
+  @apply text-[10px] text-center truncate w-full;
+  color: #6b7280;
+}
+
+.admin-icon-selected {
+  background-color: rgba(139, 92, 246, 0.2);
+  border: 2px solid #8b5cf6;
+}
+
+.admin-icon-selected span {
+  color: #c4b5fd;
+}
+
+/* Admin Table */
+.admin-table-container {
+  @apply rounded-xl overflow-hidden;
+  background-color: #1a1a24;
+  border: 1px solid rgba(100, 100, 140, 0.2);
+}
+
+.admin-table {
+  @apply w-full text-sm;
+}
+
+.admin-table thead {
+  background-color: #13131a;
+}
+
+.admin-table th {
+  @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide;
+  color: #9ca3af;
+}
+
+.admin-table td {
+  @apply px-4 py-3;
+  color: #e5e7eb;
+  border-top: 1px solid rgba(100, 100, 140, 0.1);
+}
+
+.admin-table tbody tr:hover {
+  background-color: rgba(100, 100, 140, 0.05);
+}
+
+.admin-row-inactive {
+  opacity: 0.5;
+}
+
+.admin-table-icon {
+  @apply w-8 h-8 object-contain rounded;
+  background-color: var(--color-bg-icon);
+}
+
+.admin-cell-monto {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+/* Admin Inline Edit */
+.admin-inline-input {
+  @apply px-2 py-1 rounded text-sm w-full;
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: #e5e7eb;
+  transition: all 0.2s;
+}
+
+.admin-inline-input:hover {
+  background-color: rgba(100, 100, 140, 0.1);
+  border-color: rgba(100, 100, 140, 0.3);
+}
+
+.admin-inline-input:focus {
+  background-color: #13131a;
+  border-color: #8b5cf6;
+  outline: none;
+}
+
+.admin-inline-input-monto {
+  @apply w-28 text-right;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.admin-inline-input::placeholder {
+  color: #6b7280;
+}
+
+.admin-actions {
+  @apply flex gap-2 items-center;
+}
+
+/* Admin Icon Buttons (for inline edit) */
+.admin-btn-icon {
+  @apply p-1.5 rounded transition-all;
+  background-color: rgba(100, 100, 140, 0.2);
+}
+
+.admin-btn-icon:hover {
+  background-color: rgba(100, 100, 140, 0.3);
+}
+
+.admin-btn-icon svg {
+  @apply w-4 h-4;
+}
+
+.admin-btn-icon-save {
+  color: #86efac;
+}
+
+.admin-btn-icon-save:hover {
+  background-color: rgba(34, 197, 94, 0.3);
+}
+
+.admin-btn-icon-undo {
+  color: #fbbf24;
+}
+
+.admin-btn-icon-undo:hover {
+  background-color: rgba(251, 191, 36, 0.2);
+}
+
+/* Admin Badges */
+.admin-badge {
+  @apply inline-block px-2 py-0.5 rounded text-xs font-medium;
+}
+
+.admin-badge-ingreso {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.admin-badge-egreso {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.admin-badge-activo {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.admin-badge-inactivo {
+  background-color: rgba(100, 100, 140, 0.2);
+  color: #9ca3af;
+}
+
+/* Admin Bulk Update */
+.admin-bulk-update {
+  border-color: rgba(139, 92, 246, 0.3);
 }

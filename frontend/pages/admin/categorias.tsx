@@ -1,28 +1,30 @@
-// ABM de Medios de Pago
+// ABM de Categorías de Movimiento
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '../../components/layouts';
 import AdminGuard from '../../components/admin/AdminGuard';
-import { MedioPago } from '../../__mocks__/medios';
+import { CategoriaMovimiento } from '../../__mocks__/categorias';
 import {
-  listMedios,
-  createMedio,
-  updateMedio,
-  toggleMedioActivo,
+  listCategorias,
+  createCategoria,
+  updateCategoria,
+  toggleCategoriaActivo,
   hasDependentOpciones,
-} from '../../lib/api-mock/medios';
+} from '../../lib/api-mock/categorias';
 
 type FormData = {
   nombre: string;
-  orden: number;
+  sentido: 'ingreso' | 'egreso';
+  es_plan: boolean;
 };
 
 const emptyForm: FormData = {
   nombre: '',
-  orden: 99,
+  sentido: 'ingreso',
+  es_plan: false,
 };
 
-export default function AdminMediosPage() {
-  const [medios, setMedios] = useState<MedioPago[]>([]);
+export default function AdminCategoriasPage() {
+  const [categorias, setCategorias] = useState<CategoriaMovimiento[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [showForm, setShowForm] = useState(false);
@@ -30,8 +32,8 @@ export default function AdminMediosPage() {
   const [loading, setLoading] = useState(false);
 
   const loadData = async () => {
-    const data = await listMedios();
-    setMedios(data);
+    const data = await listCategorias();
+    setCategorias(data);
   };
 
   useEffect(() => {
@@ -40,16 +42,17 @@ export default function AdminMediosPage() {
 
   const handleNew = () => {
     setEditingId(null);
-    setFormData({ ...emptyForm, orden: medios.length + 1 });
+    setFormData(emptyForm);
     setShowForm(true);
     setError('');
   };
 
-  const handleEdit = (medio: MedioPago) => {
-    setEditingId(medio.id);
+  const handleEdit = (cat: CategoriaMovimiento) => {
+    setEditingId(cat.id);
     setFormData({
-      nombre: medio.nombre,
-      orden: medio.orden,
+      nombre: cat.nombre,
+      sentido: cat.sentido,
+      es_plan: cat.es_plan,
     });
     setShowForm(true);
     setError('');
@@ -71,9 +74,9 @@ export default function AdminMediosPage() {
     setLoading(true);
     try {
       if (editingId) {
-        await updateMedio(editingId, formData);
+        await updateCategoria(editingId, formData);
       } else {
-        await createMedio({ ...formData, activo: true });
+        await createCategoria({ ...formData, activo: true });
       }
       await loadData();
       handleCancel();
@@ -83,15 +86,16 @@ export default function AdminMediosPage() {
     setLoading(false);
   };
 
-  const handleToggleActivo = async (medio: MedioPago) => {
-    if (medio.activo) {
-      const hasDeps = await hasDependentOpciones(medio.id);
+  const handleToggleActivo = async (cat: CategoriaMovimiento) => {
+    if (cat.activo) {
+      // Check dependencies before deactivating
+      const hasDeps = await hasDependentOpciones(cat.id);
       if (hasDeps) {
-        alert('No se puede desactivar: hay opciones activas que usan este medio de pago');
+        alert('No se puede desactivar: hay opciones activas que usan esta categoría');
         return;
       }
     }
-    await toggleMedioActivo(medio.id);
+    await toggleCategoriaActivo(cat.id);
     await loadData();
   };
 
@@ -100,19 +104,19 @@ export default function AdminMediosPage() {
       <AdminGuard>
         <div className="admin-page-content">
           <header className="admin-page-header">
-            <h1 className="admin-page-title">Medios de Pago</h1>
+            <h1 className="admin-page-title">Categorías de Movimiento</h1>
           </header>
 
           <div className="admin-page">
             <div className="admin-toolbar">
               <button onClick={handleNew} className="admin-btn-primary">
-                + Nuevo Medio de Pago
+                + Nueva Categoría
               </button>
             </div>
 
             {showForm && (
               <div className="admin-form-card">
-                <h3>{editingId ? 'Editar Medio de Pago' : 'Nuevo Medio de Pago'}</h3>
+                <h3>{editingId ? 'Editar Categoría' : 'Nueva Categoría'}</h3>
                 
                 <div className="admin-form-field">
                   <label>Nombre</label>
@@ -121,19 +125,31 @@ export default function AdminMediosPage() {
                     value={formData.nombre}
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     className="admin-input"
-                    placeholder="Ej: Efectivo"
+                    placeholder="Ej: Plan mensual"
                   />
                 </div>
 
                 <div className="admin-form-field">
-                  <label>Orden</label>
-                  <input
-                    type="number"
-                    value={formData.orden}
-                    onChange={(e) => setFormData({ ...formData, orden: parseInt(e.target.value) || 1 })}
-                    className="admin-input"
-                    min={1}
-                  />
+                  <label>Sentido</label>
+                  <select
+                    value={formData.sentido}
+                    onChange={(e) => setFormData({ ...formData, sentido: e.target.value as 'ingreso' | 'egreso' })}
+                    className="admin-select"
+                  >
+                    <option value="ingreso">Ingreso</option>
+                    <option value="egreso">Egreso</option>
+                  </select>
+                </div>
+
+                <div className="admin-form-field">
+                  <label className="admin-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.es_plan}
+                      onChange={(e) => setFormData({ ...formData, es_plan: e.target.checked })}
+                    />
+                    Es plan (requiere nombre de cliente)
+                  </label>
                 </div>
 
                 {error && <p className="admin-error">{error}</p>}
@@ -153,34 +169,40 @@ export default function AdminMediosPage() {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Orden</th>
                     <th>Nombre</th>
+                    <th>Sentido</th>
+                    <th>Es Plan</th>
                     <th>Estado</th>
                     <th>Actualizado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {medios.map((medio) => (
-                    <tr key={medio.id} className={!medio.activo ? 'admin-row-inactive' : ''}>
-                      <td>{medio.orden}</td>
-                      <td>{medio.nombre}</td>
+                  {categorias.map((cat) => (
+                    <tr key={cat.id} className={!cat.activo ? 'admin-row-inactive' : ''}>
+                      <td>{cat.nombre}</td>
                       <td>
-                        <span className={`admin-badge admin-badge-${medio.activo ? 'activo' : 'inactivo'}`}>
-                          {medio.activo ? 'Activo' : 'Inactivo'}
+                        <span className={`admin-badge admin-badge-${cat.sentido}`}>
+                          {cat.sentido}
                         </span>
                       </td>
-                      <td>{medio.fecha_actualizacion}</td>
+                      <td>{cat.es_plan ? 'Sí' : 'No'}</td>
+                      <td>
+                        <span className={`admin-badge admin-badge-${cat.activo ? 'activo' : 'inactivo'}`}>
+                          {cat.activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </td>
+                      <td>{cat.fecha_actualizacion}</td>
                       <td>
                         <div className="admin-actions">
-                          <button onClick={() => handleEdit(medio)} className="admin-btn-sm">
+                          <button onClick={() => handleEdit(cat)} className="admin-btn-sm">
                             Editar
                           </button>
                           <button
-                            onClick={() => handleToggleActivo(medio)}
-                            className={`admin-btn-sm ${medio.activo ? 'admin-btn-danger' : 'admin-btn-success'}`}
+                            onClick={() => handleToggleActivo(cat)}
+                            className={`admin-btn-sm ${cat.activo ? 'admin-btn-danger' : 'admin-btn-success'}`}
                           >
-                            {medio.activo ? 'Desactivar' : 'Activar'}
+                            {cat.activo ? 'Desactivar' : 'Activar'}
                           </button>
                         </div>
                       </td>
