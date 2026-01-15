@@ -1,9 +1,9 @@
 // DailyMovementsList: lista de movimientos del día
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { listMovimientos } from '../lib/api-mock/movimientos';
-import { listTipos } from '../lib/api-mock/tipos';
-import { listMedios } from '../lib/api-mock/medios';
+import { listMovimientos } from '../lib/api-unified/movimientos';
+import { listTipos } from '../lib/api-unified/tipos';
+import { listMedios } from '../lib/api-unified/medios';
 
 type Props = {
   compact?: boolean;

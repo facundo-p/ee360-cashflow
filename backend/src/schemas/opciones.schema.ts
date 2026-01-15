@@ -39,6 +39,8 @@ export const opcionQuerySchema = {
   type: 'object',
   properties: {
     activas: { type: 'string', enum: ['true', 'false'] },
+    solo_activas: { type: 'string', enum: ['true', 'false'] },
+    enriquecidas: { type: 'string', enum: ['true', 'false'] },
   },
 } as const;
 

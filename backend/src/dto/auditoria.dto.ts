@@ -2,21 +2,21 @@
 // Registra cada cambio según business-rules.md sección 2.1
 
 export type AuditoriaMovimientoDTO = {
-  id: string;
+  id: number;
   movimiento_id: string;
   usuario_id: string;
   campo: string;
-  valor_anterior: string;
-  valor_nuevo: string;
-  fecha: string;
+  valor_anterior: string | null;
+  valor_nuevo: string | null;
+  cambiado_en: string;
 };
 
 export type AuditoriaCreateDTO = {
   movimiento_id: string;
   usuario_id: string;
   campo: string;
-  valor_anterior: string;
-  valor_nuevo: string;
+  valor_anterior: string | null;
+  valor_nuevo: string | null;
 };
 
 // Para consultar historial de cambios

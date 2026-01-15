@@ -5,7 +5,7 @@ import Botonera from '../components/Botonera';
 import Dashboard from '../components/Dashboard';
 import { AppLayout } from '../components/layouts';
 import { useIsDesktop } from '../hooks/useMediaQuery';
-import { listTipos } from '../lib/api-mock/tipos';
+import { listTipos } from '../lib/api-unified/tipos';
 
 function MobileHomeContent() {
   const router = useRouter();

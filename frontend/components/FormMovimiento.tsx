@@ -1,9 +1,9 @@
 // Formulario de movimiento: estilo espartano con dropdown de tipo.
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { listTipos } from '../lib/api-mock/tipos';
-import { listMedios } from '../lib/api-mock/medios';
-import { createMovimiento, updateMovimiento, getMovimiento } from '../lib/api-mock/movimientos';
+import { listTipos } from '../lib/api-unified/tipos';
+import { listMedios } from '../lib/api-unified/medios';
+import { createMovimiento, updateMovimiento, getMovimiento } from '../lib/api-unified/movimientos';
 import { useFocusRules } from '../hooks/useFocusRules';
 import { useSessionMock } from '../hooks/useSessionMock';
 import Toast from './Toast';
@@ -85,13 +85,10 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
 
   const buildPayload = (confirmarDuplicado = false) => ({
     fecha,
-    tipo_movimiento_id: tipoActual!.id,
-    sentido: tipoActual!.sentido,
+    opcion_id: tipoActual!.id,
     monto: Number(monto),
-    medio_pago_id: medioId,
     nombre_cliente: tipoActual!.es_plan ? nombreCliente || null : null,
     nota: nota || null,
-    usuario_creador_id: user?.id ?? 'u-user',
     confirmar_duplicado: confirmarDuplicado,
   });
 

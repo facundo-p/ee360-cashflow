@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '../../components/layouts';
 import AdminGuard from '../../components/admin/AdminGuard';
-import { CategoriaMovimiento } from '../../__mocks__/categorias';
+import type { CategoriaMovimiento } from '../../lib/api-unified/categorias';
 import {
   listCategorias,
   createCategoria,
   updateCategoria,
   toggleCategoriaActivo,
   hasDependentOpciones,
-} from '../../lib/api-mock/categorias';
+} from '../../lib/api-unified/categorias';
 
 type FormData = {
   nombre: string;

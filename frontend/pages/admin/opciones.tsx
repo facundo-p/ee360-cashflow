@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '../../components/layouts';
 import AdminGuard from '../../components/admin/AdminGuard';
-import { OpcionMovimiento } from '../../__mocks__/opciones';
-import { CategoriaMovimiento } from '../../__mocks__/categorias';
-import { MedioPago } from '../../__mocks__/medios';
+import type { OpcionMovimiento } from '../../lib/api-unified/opciones';
+import type { CategoriaMovimiento } from '../../lib/api-unified/categorias';
+import type { MedioPago } from '../../lib/api-unified/medios';
 import {
   listOpciones,
   createOpcion,
@@ -12,9 +12,9 @@ import {
   toggleOpcionActivo,
   listIconosDisponibles,
   aumentarPrecios,
-} from '../../lib/api-mock/opciones';
-import { listCategorias } from '../../lib/api-mock/categorias';
-import { listMedios } from '../../lib/api-mock/medios';
+} from '../../lib/api-unified/opciones';
+import { listCategorias } from '../../lib/api-unified/categorias';
+import { listMedios } from '../../lib/api-unified/medios';
 
 type FormData = {
   categoria_id: string;

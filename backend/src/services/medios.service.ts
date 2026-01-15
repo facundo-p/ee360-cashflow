@@ -135,4 +135,11 @@ export const MediosService = {
     }
     return updated;
   },
+
+  /**
+   * Verifica si el medio tiene opciones activas.
+   */
+  hasActiveOpciones: async (id: string): Promise<boolean> => {
+    return MediosRepo.tieneOpcionesActivas(id);
+  },
 };

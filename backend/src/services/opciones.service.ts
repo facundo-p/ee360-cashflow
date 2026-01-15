@@ -34,18 +34,18 @@ export class OpcionError extends Error {
 
 export const OpcionesService = {
   /**
-   * Lista opciones con datos enriquecidos.
-   * Para la botonera del frontend.
+   * Lista opciones sin enriquecer.
    */
-  list: async (options: { soloActivas?: boolean } = {}): Promise<OpcionMovimientoEnriquecidaDTO[]> => {
-    return OpcionesRepo.listEnriquecidas(options.soloActivas ?? false);
+  list: async (options: { soloActivas?: boolean } = {}): Promise<OpcionMovimientoDTO[]> => {
+    return OpcionesRepo.list(options.soloActivas ?? false);
   },
 
   /**
-   * Lista opciones sin enriquecer (para admin).
+   * Lista opciones con datos enriquecidos.
+   * Para la botonera del frontend.
    */
-  listSimple: async (options: { soloActivas?: boolean } = {}): Promise<OpcionMovimientoDTO[]> => {
-    return OpcionesRepo.list(options.soloActivas ?? false);
+  listEnriquecidas: async (options: { soloActivas?: boolean } = {}): Promise<OpcionMovimientoEnriquecidaDTO[]> => {
+    return OpcionesRepo.listEnriquecidas(options.soloActivas ?? false);
   },
 
   /**

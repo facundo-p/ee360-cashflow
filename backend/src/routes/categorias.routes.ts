@@ -75,4 +75,14 @@ export default async function categoriasRoutes(fastify: FastifyInstance): Promis
       return CategoriasService.toggle(request.params.id);
     }
   );
+
+  // GET /api/categorias/:id/has-opciones
+  fastify.get<{ Params: { id: string } }>(
+    '/:id/has-opciones',
+    { schema: { params: categoriaParamsSchema } },
+    async (request: GetRequest) => {
+      const hasOpciones = await CategoriasService.hasActiveOpciones(request.params.id);
+      return { has_opciones: hasOpciones };
+    }
+  );
 }

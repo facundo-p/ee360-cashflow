@@ -1,12 +1,12 @@
-// DTOs de categorías de movimiento (antes "tipos").
+// DTOs de categorías de movimiento.
 // Representa la clasificación base: ingreso/egreso.
 
-export type CategoriaMovimientoDTO = {
+export type CategoriaDTO = {
   id: string;
   nombre: string;
   sentido: 'ingreso' | 'egreso';
+  es_plan: boolean;
   activo: boolean;
-  orden: number;
   created_at: string;
   updated_at: string;
 };
@@ -14,9 +14,12 @@ export type CategoriaMovimientoDTO = {
 export type CategoriaCreateDTO = {
   nombre: string;
   sentido: 'ingreso' | 'egreso';
-  orden?: number;
+  es_plan?: boolean;
 };
 
 export type CategoriaUpdateDTO = Partial<Omit<CategoriaCreateDTO, 'sentido'>> & {
   activo?: boolean;
 };
+
+// Alias for backwards compatibility
+export type CategoriaMovimientoDTO = CategoriaDTO;

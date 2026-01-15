@@ -123,4 +123,11 @@ export const CategoriasService = {
     }
     return updated;
   },
+
+  /**
+   * Verifica si la categoría tiene opciones activas.
+   */
+  hasActiveOpciones: async (id: string): Promise<boolean> => {
+    return CategoriasRepo.tieneOpcionesActivas(id);
+  },
 };

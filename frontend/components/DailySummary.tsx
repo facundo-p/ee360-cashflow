@@ -1,7 +1,7 @@
 // DailySummary: resumen del día con totales y desglose por tipo
 import React, { useEffect, useMemo, useState } from 'react';
-import { listMovimientos } from '../lib/api-mock/movimientos';
-import { listTipos } from '../lib/api-mock/tipos';
+import { listMovimientos } from '../lib/api-unified/movimientos';
+import { listTipos } from '../lib/api-unified/tipos';
 
 type Props = {
   compact?: boolean;

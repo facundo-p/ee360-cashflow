@@ -12,7 +12,7 @@ import {
 } from '../schemas/opciones.schema';
 import { OpcionCreateDTO, OpcionUpdateDTO, AumentoPreciosDTO } from '../dto/opciones.dto';
 
-type ListRequest = FastifyRequest<{ Querystring: { activas?: string } }>;
+type ListRequest = FastifyRequest<{ Querystring: { activas?: string; solo_activas?: string; enriquecidas?: string } }>;
 type GetRequest = FastifyRequest<{ Params: { id: string } }>;
 type CreateRequest = FastifyRequest<{ Body: OpcionCreateDTO }>;
 type UpdateRequest = FastifyRequest<{ Params: { id: string }; Body: OpcionUpdateDTO }>;
@@ -22,11 +22,16 @@ export default async function opcionesRoutes(fastify: FastifyInstance): Promise<
   fastify.addHook('onRequest', authenticate);
 
   // GET /api/opciones
-  fastify.get<{ Querystring: { activas?: string } }>(
+  fastify.get<{ Querystring: { activas?: string; solo_activas?: string; enriquecidas?: string } }>(
     '/',
     { schema: { querystring: opcionQuerySchema } },
     async (request: ListRequest) => {
-      const soloActivas = request.query.activas === 'true';
+      const soloActivas = request.query.activas === 'true' || request.query.solo_activas === 'true';
+      const enriquecidas = request.query.enriquecidas === 'true';
+      
+      if (enriquecidas) {
+        return OpcionesService.listEnriquecidas({ soloActivas });
+      }
       return OpcionesService.list({ soloActivas });
     }
   );

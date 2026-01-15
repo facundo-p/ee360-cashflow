@@ -1,49 +1,56 @@
-// Acceso a persistencia de auditoría (stub).
-// TODO: Implementar con base de datos real.
+// Acceso a datos de auditoría usando el store in-memory.
+// TODO: Reemplazar con SQLite cuando se implemente persistencia.
 
-import { AuditoriaMovimientoDTO, AuditoriaCreateDTO, AuditoriaFiltrosDTO } from '../dto/auditoria.dto';
+import { Store } from '../data/store';
+import { 
+  AuditoriaMovimientoDTO, 
+  AuditoriaCreateDTO,
+  AuditoriaFiltrosDTO 
+} from '../dto/auditoria.dto';
 
 export const AuditoriaRepo = {
   /**
-   * Lista registros de auditoría con filtros.
+   * Lista todos los registros de auditoría.
    */
   list: async (filtros?: AuditoriaFiltrosDTO): Promise<AuditoriaMovimientoDTO[]> => {
-    // TODO: Implementar persistencia
-    return [];
+    let auditoria = Store.auditoria.list();
+    
+    if (filtros) {
+      if (filtros.movimiento_id) {
+        auditoria = auditoria.filter(a => a.movimiento_id === filtros.movimiento_id);
+      }
+      if (filtros.usuario_id) {
+        auditoria = auditoria.filter(a => a.usuario_id === filtros.usuario_id);
+      }
+      if (filtros.fecha_desde) {
+        auditoria = auditoria.filter(a => a.cambiado_en >= filtros.fecha_desde!);
+      }
+      if (filtros.fecha_hasta) {
+        auditoria = auditoria.filter(a => a.cambiado_en <= filtros.fecha_hasta!);
+      }
+    }
+    
+    return auditoria;
   },
 
   /**
    * Obtiene el historial de cambios de un movimiento.
    */
   getByMovimiento: async (movimientoId: string): Promise<AuditoriaMovimientoDTO[]> => {
-    // TODO: Implementar persistencia
-    return [];
+    return Store.auditoria.getByMovimiento(movimientoId);
   },
 
   /**
-   * Registra un cambio en auditoría.
-   * Llamado por MovimientosService.update()
+   * Registra un cambio en un movimiento.
    */
-  logChange: async (payload: AuditoriaCreateDTO): Promise<AuditoriaMovimientoDTO> => {
-    // TODO: Implementar persistencia
-    return {
-      id: crypto.randomUUID(),
-      movimiento_id: payload.movimiento_id,
-      usuario_id: payload.usuario_id,
-      campo: payload.campo,
-      valor_anterior: payload.valor_anterior,
-      valor_nuevo: payload.valor_nuevo,
-      fecha: new Date().toISOString(),
-    };
+  logChange: async (data: AuditoriaCreateDTO): Promise<AuditoriaMovimientoDTO> => {
+    return Store.auditoria.log(data);
   },
 
   /**
-   * Registra múltiples cambios en una transacción.
+   * Registra múltiples cambios en batch.
    */
-  logChanges: async (payloads: AuditoriaCreateDTO[]): Promise<void> => {
-    // TODO: Implementar persistencia (batch insert)
-    for (const payload of payloads) {
-      await AuditoriaRepo.logChange(payload);
-    }
+  logChanges: async (entries: AuditoriaCreateDTO[]): Promise<void> => {
+    Store.auditoria.logMultiple(entries);
   },
 };

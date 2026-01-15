@@ -74,4 +74,14 @@ export default async function mediosRoutes(fastify: FastifyInstance): Promise<vo
       return MediosService.toggle(request.params.id);
     }
   );
+
+  // GET /api/medios/:id/has-opciones
+  fastify.get<{ Params: { id: string } }>(
+    '/:id/has-opciones',
+    { schema: { params: medioParamsSchema } },
+    async (request: GetRequest) => {
+      const hasOpciones = await MediosService.hasActiveOpciones(request.params.id);
+      return { has_opciones: hasOpciones };
+    }
+  );
 }

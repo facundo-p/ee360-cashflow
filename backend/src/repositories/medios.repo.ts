@@ -1,64 +1,60 @@
-// Acceso a persistencia de medios de pago (stub).
-// TODO: Implementar con base de datos real.
+// Acceso a datos de medios de pago usando el store in-memory.
+// TODO: Reemplazar con SQLite cuando se implemente persistencia.
 
-import { MedioPagoDTO, MedioPagoCreateDTO, MedioPagoUpdateDTO } from '../dto/medios.dto';
+import { Store } from '../data/store';
+import { 
+  MedioPagoDTO, 
+  MedioPagoCreateDTO, 
+  MedioPagoUpdateDTO 
+} from '../dto/medios.dto';
 
 export const MediosRepo = {
   /**
-   * Lista todos los medios de pago.
-   * @param soloActivos - Si true, filtra solo los activos
+   * Lista todos los medios de pago ordenados.
    */
   list: async (soloActivos = false): Promise<MedioPagoDTO[]> => {
-    // TODO: Implementar persistencia
-    return [];
+    return Store.medios.list(soloActivos);
   },
 
   /**
-   * Busca un medio de pago por ID.
+   * Busca un medio por ID.
    */
   findById: async (id: string): Promise<MedioPagoDTO | null> => {
-    // TODO: Implementar persistencia
-    return null;
+    return Store.medios.findById(id);
   },
 
   /**
-   * Busca un medio de pago por nombre (para validar unicidad).
+   * Busca un medio por nombre (case insensitive).
    */
   findByNombre: async (nombre: string): Promise<MedioPagoDTO | null> => {
-    // TODO: Implementar persistencia
-    return null;
+    return Store.medios.findByNombre(nombre);
   },
 
   /**
    * Crea un nuevo medio de pago.
    */
   create: async (payload: MedioPagoCreateDTO): Promise<MedioPagoDTO> => {
-    // TODO: Implementar persistencia
-    const now = new Date().toISOString();
-    return {
-      id: crypto.randomUUID(),
+    const medios = Store.medios.list();
+    const maxOrden = medios.reduce((max, m) => Math.max(max, m.orden), 0);
+    
+    return Store.medios.create({
       nombre: payload.nombre,
       activo: true,
-      orden: payload.orden ?? 0,
-      created_at: now,
-      updated_at: now,
-    };
+      orden: payload.orden ?? maxOrden + 1,
+    });
   },
 
   /**
    * Actualiza un medio de pago existente.
    */
   update: async (id: string, payload: MedioPagoUpdateDTO): Promise<MedioPagoDTO | null> => {
-    // TODO: Implementar persistencia
-    return null;
+    return Store.medios.update(id, payload);
   },
 
   /**
-   * Verifica si existen opciones activas que usen este medio.
-   * Usado para validar antes de desactivar.
+   * Verifica si hay opciones activas que usan este medio.
    */
   tieneOpcionesActivas: async (medioId: string): Promise<boolean> => {
-    // TODO: Implementar persistencia
-    return false;
+    return Store.medios.hasActiveOpciones(medioId);
   },
 };

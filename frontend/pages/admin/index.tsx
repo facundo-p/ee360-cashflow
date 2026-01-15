@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '../../components/layouts';
 import AdminGuard from '../../components/admin/AdminGuard';
-import { listCategorias } from '../../lib/api-mock/categorias';
-import { listMedios } from '../../lib/api-mock/medios';
-import { listOpciones } from '../../lib/api-mock/opciones';
+import { listCategorias } from '../../lib/api-unified/categorias';
+import { listMedios } from '../../lib/api-unified/medios';
+import { listOpciones } from '../../lib/api-unified/opciones';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({

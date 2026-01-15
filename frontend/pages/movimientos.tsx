@@ -1,9 +1,9 @@
 // Listado de movimientos con layout responsivo, filtros y exportación CSV.
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { listMovimientos } from '../lib/api-mock/movimientos';
-import { listTipos } from '../lib/api-mock/tipos';
-import { listMedios } from '../lib/api-mock/medios';
+import { listMovimientos } from '../lib/api-unified/movimientos';
+import { listTipos } from '../lib/api-unified/tipos';
+import { listMedios } from '../lib/api-unified/medios';
 import { AppLayout } from '../components/layouts';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 

@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '../../components/layouts';
 import AdminGuard from '../../components/admin/AdminGuard';
-import { MedioPago } from '../../__mocks__/medios';
+import type { MedioPago } from '../../lib/api-unified/medios';
 import {
   listMedios,
   createMedio,
   updateMedio,
   toggleMedioActivo,
   hasDependentOpciones,
-} from '../../lib/api-mock/medios';
+} from '../../lib/api-unified/medios';
 
 type FormData = {
   nombre: string;
