@@ -1,7 +1,6 @@
 // DailySummary: resumen del día con totales y desglose por tipo
 import React, { useEffect, useMemo, useState } from 'react';
 import { listMovimientos } from '../lib/api-unified/movimientos';
-import { listTipos } from '../lib/api-unified/tipos';
 
 type Props = {
   compact?: boolean;
@@ -10,12 +9,10 @@ type Props = {
 
 export default function DailySummary({ compact = false, refreshKey = 0 }: Props) {
   const [movs, setMovs] = useState<any[]>([]);
-  const [tipos, setTipos] = useState<any[]>([]);
   const hoy = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     listMovimientos().then(setMovs);
-    listTipos().then(setTipos);
   }, [refreshKey]);
 
   // Filter today's movements
@@ -23,13 +20,16 @@ export default function DailySummary({ compact = false, refreshKey = 0 }: Props)
     return movs.filter((m) => m.fecha === hoy);
   }, [movs, hoy]);
 
+  // Helper to get sentido from enriched or legacy format
+  const getSentido = (m: any) => m.categoria_sentido ?? m.sentido ?? 'ingreso';
+
   // Calculate totals
   const totales = useMemo(() => {
     const ingresos = movsHoy
-      .filter((m) => m.sentido === 'ingreso')
+      .filter((m) => getSentido(m) === 'ingreso')
       .reduce((sum, m) => sum + (m.monto ?? 0), 0);
     const egresos = movsHoy
-      .filter((m) => m.sentido === 'egreso')
+      .filter((m) => getSentido(m) === 'egreso')
       .reduce((sum, m) => sum + (m.monto ?? 0), 0);
     return {
       ingresos,
@@ -39,22 +39,22 @@ export default function DailySummary({ compact = false, refreshKey = 0 }: Props)
     };
   }, [movsHoy]);
 
-  // Count movements by type
+  // Count movements by opcion (using enriched data)
   const movsPorTipo = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const counts: Record<string, { nombre: string; sentido: string; cantidad: number }> = {};
     movsHoy.forEach((m) => {
-      counts[m.tipo_movimiento_id] = (counts[m.tipo_movimiento_id] || 0) + 1;
+      const key = m.opcion_id ?? m.tipo_movimiento_id ?? 'unknown';
+      const nombre = m.opcion_nombre ?? 'Desconocido';
+      const sentido = getSentido(m);
+      if (!counts[key]) {
+        counts[key] = { nombre, sentido, cantidad: 0 };
+      }
+      counts[key].cantidad++;
     });
-    return tipos
-      .map((t) => ({
-        id: t.id,
-        nombre: t.nombre,
-        sentido: t.sentido,
-        cantidad: counts[t.id] || 0,
-      }))
-      .filter((t) => t.cantidad > 0)
+    return Object.entries(counts)
+      .map(([id, data]) => ({ id, ...data }))
       .sort((a, b) => b.cantidad - a.cantidad);
-  }, [movsHoy, tipos]);
+  }, [movsHoy]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T12:00:00');

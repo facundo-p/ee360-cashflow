@@ -52,8 +52,9 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     if (mode === 'edit' && movimientoId) {
       getMovimiento(movimientoId).then((mov: any) => {
         if (!mov) return;
-        setTipoId(mov.tipo_movimiento_id);
-        setMedioId(mov.medio_pago_id);
+        // Support both new (opcion_id) and legacy (tipo_movimiento_id) formats
+        setTipoId(mov.opcion_id ?? mov.tipo_movimiento_id);
+        setMedioId(mov.medio_pago_id ?? null);
         setMonto(mov.monto);
         setFecha(mov.fecha);
         setNombreCliente(mov.nombre_cliente ?? '');

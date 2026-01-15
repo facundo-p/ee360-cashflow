@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { listMovimientos } from '../lib/api-unified/movimientos';
 import { listTipos } from '../lib/api-unified/tipos';
-import { listMedios } from '../lib/api-unified/medios';
 import { AppLayout } from '../components/layouts';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 
@@ -11,7 +10,6 @@ function MovimientosContent() {
   const isDesktop = useIsDesktop();
   const [movs, setMovs] = useState<any[]>([]);
   const [tipos, setTipos] = useState<any[]>([]);
-  const [medios, setMedios] = useState<any[]>([]);
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const hoy = new Date().toISOString().slice(0, 10);
   const [fechaDesde, setFechaDesde] = useState<string>('');
@@ -20,13 +18,19 @@ function MovimientosContent() {
   useEffect(() => {
     listMovimientos().then(setMovs);
     listTipos().then(setTipos);
-    listMedios().then(setMedios);
   }, []);
+
+  // Helper to get sentido from enriched or legacy format
+  const getSentido = (m: any) => m.categoria_sentido ?? m.sentido ?? 'ingreso';
+  const getOpcionId = (m: any) => m.opcion_id ?? m.tipo_movimiento_id;
+  const getOpcionNombre = (m: any) => m.opcion_nombre ?? 'Movimiento';
+  const getMedioNombre = (m: any) => m.medio_pago_nombre ?? m.medio_pago_id ?? '-';
 
   const visibles = useMemo(() => {
     return movs
       .filter((m) => {
-        const okTipo = filtroTipo === 'todos' ? true : m.tipo_movimiento_id === filtroTipo;
+        const opcionId = getOpcionId(m);
+        const okTipo = filtroTipo === 'todos' ? true : opcionId === filtroTipo;
         const okFechaDesde = !fechaDesde || m.fecha >= fechaDesde;
         const okFechaHasta = !fechaHasta || m.fecha <= fechaHasta;
         return okTipo && okFechaDesde && okFechaHasta;
@@ -34,20 +38,15 @@ function MovimientosContent() {
       .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id));
   }, [movs, filtroTipo, fechaDesde, fechaHasta]);
 
-  const tipoById = (id: string) => tipos.find((t) => t.id === id);
-  const medioById = (id: string) => medios.find((m) => m.id === id);
-
   const exportCSV = () => {
     const rows = visibles.map((m) => {
-      const tipo = tipoById(m.tipo_movimiento_id);
-      const medio = medioById(m.medio_pago_id);
       return {
         fecha: m.fecha,
-        sentido: m.sentido,
-        tipo_movimiento: tipo?.nombre ?? m.tipo_movimiento_id,
-        medio_pago: medio?.nombre ?? m.medio_pago_id,
+        sentido: getSentido(m),
+        tipo_movimiento: getOpcionNombre(m),
+        medio_pago: getMedioNombre(m),
         monto: m.monto,
-        usuario: m.usuario_creador_id,
+        usuario: m.created_by_nombre ?? m.usuario_creador_id ?? '',
         nombre_cliente: m.nombre_cliente ?? '',
         nota: m.nota ?? '',
       };
@@ -104,20 +103,19 @@ function MovimientosContent() {
         <div className="desktop-content-main">
           <div className="list-items">
             {visibles.map((m) => {
-              const tipo = tipoById(m.tipo_movimiento_id);
-              const medio = medioById(m.medio_pago_id);
+              const sentido = getSentido(m);
               return (
                 <Link key={m.id} href={`/movimiento/${m.id}`} className="list-item">
                   <div className="list-item-header">
-                    <span className="list-item-title">{tipo?.nombre ?? 'Tipo'}</span>
-                    <span className={m.sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
-                      {m.sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
+                    <span className="list-item-title">{getOpcionNombre(m)}</span>
+                    <span className={sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
+                      {sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
                     </span>
                   </div>
                   <div className="list-item-details">
                     <span>{m.fecha}</span>
                     <span>·</span>
-                    <span>{medio?.nombre ?? m.medio_pago_id}</span>
+                    <span>{getMedioNombre(m)}</span>
                     {m.nombre_cliente && (
                       <>
                         <span>·</span>
@@ -179,20 +177,19 @@ function MovimientosContent() {
         {/* Lista de movimientos */}
         <div className="list-items">
           {visibles.map((m) => {
-            const tipo = tipoById(m.tipo_movimiento_id);
-            const medio = medioById(m.medio_pago_id);
+            const sentido = getSentido(m);
             return (
               <Link key={m.id} href={`/movimiento/${m.id}`} className="list-item">
                 <div className="list-item-header">
-                  <span className="list-item-title">{tipo?.nombre ?? 'Tipo'}</span>
-                  <span className={m.sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
-                    {m.sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
+                  <span className="list-item-title">{getOpcionNombre(m)}</span>
+                  <span className={sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
+                    {sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
                   </span>
                 </div>
                 <div className="list-item-details">
                   <span>{m.fecha}</span>
                   <span>·</span>
-                  <span>{medio?.nombre ?? m.medio_pago_id}</span>
+                  <span>{getMedioNombre(m)}</span>
                   {m.nombre_cliente && (
                     <>
                       <span>·</span>
