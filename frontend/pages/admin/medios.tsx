@@ -133,6 +133,7 @@ export default function AdminMediosPage() {
                     onChange={(e) => setFormData({ ...formData, orden: parseInt(e.target.value) || 1 })}
                     className="admin-input"
                     min={1}
+                    placeholder="Posición en la lista"
                   />
                 </div>
 

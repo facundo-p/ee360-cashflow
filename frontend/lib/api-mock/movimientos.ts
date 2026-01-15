@@ -5,7 +5,10 @@ import {
   createMovimiento as createInStore,
   updateMovimiento as updateInStore,
   findMovimiento,
+  CreateMovimientoResult,
 } from './store';
+
+export type { CreateMovimientoResult };
 
 export async function listMovimientos() {
   await mockDelay();
@@ -17,7 +20,9 @@ export async function getMovimiento(id: string) {
   return findMovimiento(id);
 }
 
-export async function createMovimiento(payload: any) {
+export async function createMovimiento(
+  payload: any & { confirmar_duplicado?: boolean }
+): Promise<CreateMovimientoResult> {
   await mockDelay();
   return createInStore(payload);
 }

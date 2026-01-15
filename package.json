@@ -4,13 +4,17 @@
   "private": true,
   "scripts": {
     "frontend:dev": "next dev frontend -p 3000",
-    "backend:dev": "echo \"Start backend dev server\"",
+    "backend:dev": "npx ts-node --project backend/tsconfig.json --transpile-only backend/server.ts",
+    "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\"",
     "db:migrate": "echo \"Run migrations in persistence/migrations\"",
     "db:seed": "echo \"Run seeds in persistence/seeds\"",
     "lint": "echo \"Run eslint\"",
     "format": "echo \"Run prettier\""
   },
   "dependencies": {
+    "fastify": "^5.2.1",
+    "@fastify/cors": "^10.0.2",
+    "fastify-plugin": "^5.0.1",
     "next": "^16.0.10",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
@@ -20,7 +24,10 @@
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "pino-pretty": "^13.0.0",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.13"
+    "tailwindcss": "^3.4.13",
+    "ts-node": "^10.9.2"
   }
 }

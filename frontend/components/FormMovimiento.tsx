@@ -30,7 +30,11 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
   const [nota, setNota] = useState<string>('');
   const [toast, setToast] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ fecha?: string; monto?: string; medio_pago?: string; nombre_cliente?: string }>({});
+  const [errors, setErrors] = useState<{ fecha?: string; monto?: string; medio_pago?: string; nombre_cliente?: string; nota?: string }>({});
+  
+  // Estado para confirmación de duplicados
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState<any>(null);
 
   // Cargar datos
   useEffect(() => {
@@ -79,29 +83,19 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     e.currentTarget.src = DEFAULT_ICON;
   };
 
-  const onGuardar = async () => {
-    const nextErrors: typeof errors = {};
-    if (!fecha) nextErrors.fecha = 'La fecha es obligatoria.';
-    if (monto === '') nextErrors.monto = 'El monto es obligatorio.';
-    if (!medioId) nextErrors.medio_pago = 'El medio de pago es obligatorio.';
-    if (tipoActual.es_plan  && nombreCliente === '') nextErrors.nombre_cliente = 'El nombre de cliente es obligatorio.';
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !tipoActual) return;
-    setLoading(true);
-    const basePayload = {
-      fecha,
-      tipo_movimiento_id: tipoActual.id,
-      sentido: tipoActual.sentido,
-      monto: Number(monto),
-      medio_pago_id: medioId,
-      nombre_cliente: tipoActual.es_plan ? nombreCliente || null : null,
-      nota: nota || null,
-      usuario_creador_id: user?.id ?? 'u-user',
-    };
-    const mov =
-      mode === 'create'
-        ? await createMovimiento(basePayload)
-        : await updateMovimiento(movimientoId!, basePayload);
+  const buildPayload = (confirmarDuplicado = false) => ({
+    fecha,
+    tipo_movimiento_id: tipoActual!.id,
+    sentido: tipoActual!.sentido,
+    monto: Number(monto),
+    medio_pago_id: medioId,
+    nombre_cliente: tipoActual!.es_plan ? nombreCliente || null : null,
+    nota: nota || null,
+    usuario_creador_id: user?.id ?? 'u-user',
+    confirmar_duplicado: confirmarDuplicado,
+  });
+
+  const handleSuccess = () => {
     setToast('Movimiento registrado ✔');
     setLoading(false);
     
@@ -115,7 +109,54 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     } else {
       setTimeout(() => router.push('/home'), 600);
     }
-    return mov;
+  };
+
+  const onGuardar = async (confirmarDuplicado = false) => {
+    const nextErrors: typeof errors = {};
+    if (!fecha) nextErrors.fecha = 'La fecha es obligatoria.';
+    if (monto === '') nextErrors.monto = 'El monto es obligatorio.';
+    if (!medioId) nextErrors.medio_pago = 'El medio de pago es obligatorio.';
+    if (tipoActual?.es_plan && nombreCliente === '') nextErrors.nombre_cliente = 'El nombre de cliente es obligatorio.';
+    // Nota obligatoria para egresos
+    if (tipoActual?.sentido === 'egreso' && !nota.trim()) nextErrors.nota = 'La nota es obligatoria para egresos.';
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0 || !tipoActual) return;
+    
+    setLoading(true);
+    const payload = buildPayload(confirmarDuplicado);
+
+    if (mode === 'edit') {
+      await updateMovimiento(movimientoId!, payload);
+      handleSuccess();
+      return;
+    }
+
+    // Modo create: verificar duplicados
+    const result = await createMovimiento(payload);
+    
+    if (result.requires_confirmation && !result.created) {
+      // Hay un posible duplicado, mostrar advertencia
+      setLoading(false);
+      setPendingPayload(payload);
+      setShowDuplicateWarning(true);
+      return;
+    }
+
+    // Movimiento creado exitosamente
+    handleSuccess();
+  };
+
+  const handleConfirmDuplicate = async () => {
+    setShowDuplicateWarning(false);
+    setPendingPayload(null);
+    // Volver a intentar con confirmación
+    await onGuardar(true);
+  };
+
+  const handleCancelDuplicate = () => {
+    setShowDuplicateWarning(false);
+    setPendingPayload(null);
+    setLoading(false);
   };
 
   const iconSrc = tipoActual?.icono ? `/icons/${tipoActual.icono}` : DEFAULT_ICON;
@@ -202,6 +243,7 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
                 setErrors((prev) => ({ ...prev, monto: undefined }));
               }}
               className="form-input"
+              placeholder="Ingrese el monto"
               autoFocus={focusRule.initialTarget === 'monto'}
             />
             {errors.monto && <span className="form-error">{errors.monto}</span>}
@@ -232,26 +274,35 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
           {/* Nombre del cliente */}
           <div>
             <label className="form-label">
-              Nombre del cliente<span className="form-label-required">*</span>
+              Nombre del cliente {tipoActual?.es_plan ? <span className="form-label-required">*</span> : ''}
               </label>
             <input
               value={nombreCliente}
-              onChange={(e) => setNombreCliente(e.target.value)}
+              onChange={(e) => {
+                setNombreCliente(e.target.value);
+                setErrors((prev) => ({ ...prev, nombre_cliente: undefined }));
+              }}
               className="form-input"
-              placeholder=""
+              placeholder="Nombre y apellido del cliente"
             />
             {errors.nombre_cliente && <span className="form-error">{errors.nombre_cliente}</span>}
           </div>
 
           {/* Nota */}
           <div>
-            <label className="form-label">Nota</label>
+            <label className="form-label">
+              Nota{tipoActual?.sentido === 'egreso' && <span className="form-label-required">*</span>}
+            </label>
             <input
               value={nota}
-              onChange={(e) => setNota(e.target.value)}
+              onChange={(e) => {
+                setNota(e.target.value);
+                setErrors((prev) => ({ ...prev, nota: undefined }));
+              }}
               className="form-input"
-              placeholder=""
+              placeholder={tipoActual?.sentido === 'egreso' ? 'Descripción del egreso (obligatorio)' : 'Observaciones adicionales'}
             />
+            {errors.nota && <span className="form-error">{errors.nota}</span>}
           </div>
         </div>
       </main>
@@ -260,7 +311,7 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
       <div className={embedded ? "form-actions-embedded" : "form-actions"}>
         <button
           type="button"
-          onClick={onGuardar}
+          onClick={() => onGuardar()}
           disabled={loading}
           className="form-btn-submit"
           autoFocus={focusRule.initialTarget === 'guardar'}
@@ -270,6 +321,39 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
       </div>
 
       {toast && <Toast message={toast} />}
+
+      {/* Modal de advertencia de duplicado */}
+      {showDuplicateWarning && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-icon-warning">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+              </svg>
+            </div>
+            <h3 className="modal-title">Posible movimiento duplicado</h3>
+            <p className="modal-message">
+              Ya existe un movimiento con el mismo tipo, monto, fecha y cliente.
+              <br />
+              ¿Deseas registrarlo de todas formas?
+            </p>
+            <div className="modal-actions">
+              <button 
+                onClick={handleCancelDuplicate} 
+                className="modal-btn-secondary"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleConfirmDuplicate} 
+                className="modal-btn-primary"
+              >
+                Sí, registrar igualmente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -461,6 +461,69 @@
 }
 
 /* ========================================
+   Modal de confirmación
+   ======================================== */
+.modal-overlay {
+  @apply fixed inset-0 flex items-center justify-center z-50;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  @apply mx-4 p-6 rounded-xl max-w-md w-full text-center;
+  background-color: var(--color-bg-content);
+  border: 2px solid var(--color-gold);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modal-icon-warning {
+  @apply w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center;
+  background-color: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.modal-icon-warning svg {
+  @apply w-10 h-10;
+}
+
+.modal-title {
+  @apply text-xl font-bold mb-3 tracking-wide;
+  font-family: 'Cinzel', serif;
+  color: var(--color-gold-light);
+}
+
+.modal-message {
+  @apply text-sm mb-6 leading-relaxed;
+  color: var(--color-text-light);
+}
+
+.modal-actions {
+  @apply flex gap-3 justify-center;
+}
+
+.modal-btn-secondary {
+  @apply px-5 py-2.5 rounded-lg font-medium transition-colors;
+  background-color: rgba(100, 100, 120, 0.3);
+  border: 1px solid rgba(150, 150, 170, 0.3);
+  color: var(--color-text-light);
+}
+
+.modal-btn-secondary:hover {
+  background-color: rgba(100, 100, 120, 0.5);
+}
+
+.modal-btn-primary {
+  @apply px-5 py-2.5 rounded-lg font-medium transition-colors;
+  background: linear-gradient(135deg, var(--color-gold) 0%, #8b6914 100%);
+  color: #1a1a1a;
+  border: none;
+}
+
+.modal-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-gold-light) 0%, var(--color-gold) 100%);
+}
+
+/* ========================================
    Componentes Legacy (compatibilidad)
    ======================================== */
 .legacy-section {
@@ -679,18 +742,18 @@
 }
 
 .desktop-main {
-  @apply flex-1 overflow-y-auto p-6;
+  @apply flex-1 overflow-hidden p-6;
 }
 
 /* ========================================
    Dashboard
    ======================================== */
 .dashboard {
-  @apply h-full flex flex-col;
+  @apply h-full flex flex-col overflow-hidden;
 }
 
 .dashboard-header {
-  @apply mb-6;
+  @apply mb-6 shrink-0;
 }
 
 .dashboard-title {
@@ -705,19 +768,20 @@
 }
 
 .dashboard-grid {
-  @apply flex-1 grid gap-6;
+  @apply flex-1 grid gap-6 overflow-hidden;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .dashboard-panel {
-  @apply rounded-xl p-5;
+  @apply rounded-xl p-5 overflow-hidden flex flex-col;
   background-color: rgba(30, 30, 50, 0.6);
   border: 1px solid rgba(201, 162, 39, 0.3);
 }
 
 .dashboard-panel-form {
   grid-row: 1 / 3;
+  @apply overflow-y-auto;
 }
 
 .dashboard-panel-summary {
@@ -728,7 +792,6 @@
 .dashboard-panel-list {
   grid-column: 2;
   grid-row: 2;
-  @apply overflow-hidden flex flex-col;
 }
 
 /* ========================================
@@ -831,7 +894,7 @@
    Summary Compact (Desktop Dashboard)
    ======================================== */
 .summary-compact {
-  @apply h-full flex flex-col;
+  @apply h-full flex flex-col overflow-hidden;
 }
 
 .summary-compact-title {
@@ -881,7 +944,7 @@
 }
 
 .summary-compact-breakdown {
-  @apply space-y-1 mt-auto;
+  @apply flex-1 space-y-1 mt-2 overflow-y-auto min-h-0;
 }
 
 .summary-compact-tipo {
@@ -899,7 +962,7 @@
    Movements Compact (Desktop Dashboard)
    ======================================== */
 .movements-compact {
-  @apply h-full flex flex-col;
+  @apply h-full flex flex-col overflow-hidden;
 }
 
 .movements-compact-title {
@@ -914,7 +977,7 @@
 }
 
 .movements-compact-list {
-  @apply flex-1 space-y-2 overflow-y-auto;
+  @apply flex-1 space-y-2 overflow-y-auto min-h-0;
 }
 
 .movements-compact-item {

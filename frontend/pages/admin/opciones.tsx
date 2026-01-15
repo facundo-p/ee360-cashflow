@@ -343,6 +343,7 @@ export default function AdminOpcionesPage() {
                       onChange={(e) => setFormData({ ...formData, orden: parseInt(e.target.value) || 1 })}
                       className="admin-input"
                       min={1}
+                      placeholder="Posición en la lista"
                     />
                   </div>
                 </div>
@@ -414,6 +415,7 @@ export default function AdminOpcionesPage() {
                             value={currentNombre}
                             onChange={(e) => handleInlineChange(opcion.id, 'nombre_display', e.target.value)}
                             className="admin-inline-input"
+                            placeholder="Nombre para mostrar"
                           />
                         </td>
                         <td>
