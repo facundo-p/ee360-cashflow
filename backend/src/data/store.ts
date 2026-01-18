@@ -352,7 +352,7 @@ export const Store = {
       return store.categorias.find(c => c.nombre.toLowerCase() === nombre.toLowerCase()) ?? null;
     },
     
-    create: (data: Omit<CategoriaDTO, 'id' | 'created_at' | 'updated_at'>): CategoriaDTO => {
+    create: (data: Omit<CategoriaDTO, 'created_at' | 'updated_at'>): CategoriaDTO => {
       const now = new Date().toISOString();
       const categoria: CategoriaDTO = {
         ...data,
@@ -397,7 +397,7 @@ export const Store = {
       return store.medios.find(m => m.nombre.toLowerCase() === nombre.toLowerCase()) ?? null;
     },
     
-    create: (data: Omit<MedioPagoDTO, 'id' | 'created_at' | 'updated_at'>): MedioPagoDTO => {
+    create: (data: Omit<MedioPagoDTO, 'created_at' | 'updated_at'>): MedioPagoDTO => {
       const now = new Date().toISOString();
       const medio: MedioPagoDTO = {
         ...data,
@@ -471,7 +471,7 @@ export const Store = {
       ) ?? null;
     },
     
-    create: (data: Omit<OpcionMovimientoDTO, 'id' | 'created_at' | 'updated_at'>): OpcionMovimientoDTO => {
+    create: (data: Omit<OpcionMovimientoDTO, 'created_at' | 'updated_at'>): OpcionMovimientoDTO => {
       const now = new Date().toISOString();
       const opcion: OpcionMovimientoDTO = {
         ...data,
@@ -599,7 +599,7 @@ export const Store = {
       ) ?? null;
     },
     
-    create: (data: Omit<MovimientoDTO, 'id' | 'created_at' | 'updated_at' | 'updated_by_user_id'>): MovimientoDTO => {
+    create: (data: Omit<MovimientoDTO, 'created_at' | 'updated_at' | 'updated_by_user_id'>): MovimientoDTO => {
       const now = new Date().toISOString();
       const movimiento: MovimientoDTO = {
         ...data,

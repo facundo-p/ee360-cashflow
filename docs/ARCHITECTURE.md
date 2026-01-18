@@ -14,7 +14,7 @@
 
 ## Persistencia
 - SQLite inicial (`persistence/schema.sql`), migrable a Postgres.
-- Tablas: usuarios, medios_pago, tipos_movimiento, movimientos, auditoria_movimientos.
+- Tablas: usuarios, medios_pago, categorias_movimiento, movimientos, auditoria_movimientos.
 - Seeds iniciales para medios, tipos y admin demo.
 
 ## Configuración

@@ -8,6 +8,7 @@ import {
   OpcionCreateDTO, 
   OpcionUpdateDTO 
 } from '../dto/opciones.dto';
+import { IdFactory } from '../utils/idFactory';
 
 export const OpcionesRepo = {
   /**
@@ -57,6 +58,7 @@ export const OpcionesRepo = {
     const now = new Date().toISOString();
     
     return Store.opciones.create({
+      id: IdFactory.opcion(),
       categoria_id: payload.categoria_id,
       medio_pago_id: payload.medio_pago_id,
       nombre_display: payload.nombre_display,

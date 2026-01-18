@@ -7,6 +7,7 @@ import {
   CategoriaCreateDTO, 
   CategoriaUpdateDTO 
 } from '../dto/categorias.dto';
+import { IdFactory } from '../utils/idFactory';
 
 export const CategoriasRepo = {
   /**
@@ -35,6 +36,7 @@ export const CategoriasRepo = {
    */
   create: async (payload: CategoriaCreateDTO): Promise<CategoriaDTO> => {
     return Store.categorias.create({
+      id: IdFactory.categoria(payload.nombre),
       nombre: payload.nombre,
       sentido: payload.sentido,
       es_plan: payload.es_plan ?? false,

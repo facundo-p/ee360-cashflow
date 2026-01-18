@@ -9,6 +9,7 @@ import {
   MovimientoUpdateDTO,
   MovimientoFiltrosDTO 
 } from '../dto/movimientos.dto';
+import { IdFactory } from '../utils/idFactory';
 
 export const MovimientosRepo = {
   /**
@@ -115,6 +116,7 @@ export const MovimientosRepo = {
     userId: string
   ): Promise<MovimientoDTO> => {
     return Store.movimientos.create({
+      id: IdFactory.movimiento(),
       fecha: payload.fecha,
       opcion_id: payload.opcion_id,
       monto: payload.monto,

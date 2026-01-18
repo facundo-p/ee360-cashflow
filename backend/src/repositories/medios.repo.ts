@@ -7,6 +7,7 @@ import {
   MedioPagoCreateDTO, 
   MedioPagoUpdateDTO 
 } from '../dto/medios.dto';
+import { IdFactory } from '../utils/idFactory';
 
 export const MediosRepo = {
   /**
@@ -38,6 +39,7 @@ export const MediosRepo = {
     const maxOrden = medios.reduce((max, m) => Math.max(max, m.orden), 0);
     
     return Store.medios.create({
+      id: IdFactory.medio(payload.nombre),
       nombre: payload.nombre,
       activo: true,
       orden: payload.orden ?? maxOrden + 1,

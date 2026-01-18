@@ -50,8 +50,7 @@ next-env.d.ts
 *.db
 *.sqlite
 *.sqlite3
-persistence/data.db
-persistence/*.db
+data/
 
 # OS files
 Thumbs.db
