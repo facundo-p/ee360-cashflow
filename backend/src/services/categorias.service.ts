@@ -47,10 +47,10 @@ export const CategoriasService = {
    */
   create: async (payload: CategoriaCreateDTO): Promise<CategoriaMovimientoDTO> => {
     // Validar nombre único
-    const existente = await CategoriasRepo.findByNombre(payload.nombre);
+    const existente = await CategoriasRepo.findByNombre(payload.nombre.trim());
     if (existente) {
       throw new CategoriaError(
-        `Ya existe una categoría con el nombre "${payload.nombre}"`,
+        `Ya existe una categoría con el nombre "${payload.nombre.trim()}"`,
         'DUPLICATE_NAME'
       );
     }
@@ -79,10 +79,10 @@ export const CategoriasService = {
 
     // Si cambia el nombre, validar unicidad
     if (payload.nombre && payload.nombre !== categoria.nombre) {
-      const existente = await CategoriasRepo.findByNombre(payload.nombre);
+      const existente = await CategoriasRepo.findByNombre(payload.nombre.trim());
       if (existente) {
         throw new CategoriaError(
-          `Ya existe una categoría con el nombre "${payload.nombre}"`,
+          `Ya existe una categoría con el nombre "${payload.nombre.trim()}"`,
           'DUPLICATE_NAME'
         );
       }

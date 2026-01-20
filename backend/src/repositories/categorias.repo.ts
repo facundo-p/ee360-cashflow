@@ -1,11 +1,10 @@
-// Acceso a datos de categorías usando el store in-memory.
-// TODO: Reemplazar con SQLite cuando se implemente persistencia.
+// src/repositories/categorias.repo.ts
 
-import { Store } from '../data/store';
-import { 
-  CategoriaDTO, 
-  CategoriaCreateDTO, 
-  CategoriaUpdateDTO 
+import { getDb } from '../../persistence/sqlite';
+import {
+  CategoriaDTO,
+  CategoriaCreateDTO,
+  CategoriaUpdateDTO
 } from '../dto/categorias.dto';
 import { IdFactory } from '../utils/idFactory';
 
@@ -13,48 +12,167 @@ export const CategoriasRepo = {
   /**
    * Lista todas las categorías.
    */
-  list: async (soloActivas = false): Promise<CategoriaDTO[]> => {
-    return Store.categorias.list(soloActivas);
+  async list(soloActivas = false): Promise<CategoriaDTO[]> {
+    const db = getDb();
+
+    const sql = `
+      SELECT
+        id,
+        nombre,
+        sentido,
+        es_plan,
+        activo,
+        created_at,
+        updated_at
+      FROM categorias_movimiento
+      ${soloActivas ? 'WHERE activo = 1' : ''}
+      ORDER BY nombre ASC
+    `;
+
+    const rows = db.prepare(sql).all() as CategoriaDTO[];
+
+    return rows.map(row => ({
+      ...row,
+      es_plan: Boolean(row.es_plan),
+      activo: Boolean(row.activo),
+    }));
   },
 
   /**
    * Busca una categoría por ID.
    */
-  findById: async (id: string): Promise<CategoriaDTO | null> => {
-    return Store.categorias.findById(id);
+  async findById(id: string): Promise<CategoriaDTO | null> {
+    const db = getDb();
+
+    const row = db.prepare(`
+      SELECT *
+      FROM categorias_movimiento
+      WHERE id = ?
+    `).get(id) as CategoriaDTO | undefined;
+
+    if (!row) return null;
+
+    return {
+      ...row,
+      es_plan: Boolean(row.es_plan),
+      activo: Boolean(row.activo),
+    };
   },
 
   /**
    * Busca una categoría por nombre (case insensitive).
    */
-  findByNombre: async (nombre: string): Promise<CategoriaDTO | null> => {
-    return Store.categorias.findByNombre(nombre);
+  async findByNombre(nombre: string): Promise<CategoriaDTO | null> {
+    const db = getDb();
+
+    const row = db.prepare(`
+      SELECT *
+      FROM categorias_movimiento
+      WHERE lower(nombre) = lower(?)
+      LIMIT 1
+    `).get(nombre) as CategoriaDTO | undefined;
+
+    if (!row) return null;
+
+    return {
+      ...row,
+      es_plan: Boolean(row.es_plan),
+      activo: Boolean(row.activo),
+    };
   },
 
   /**
    * Crea una nueva categoría.
    */
-  create: async (payload: CategoriaCreateDTO): Promise<CategoriaDTO> => {
-    return Store.categorias.create({
-      id: IdFactory.categoria(payload.nombre),
-      nombre: payload.nombre,
-      sentido: payload.sentido,
-      es_plan: payload.es_plan ?? false,
-      activo: true,
-    });
+  async create(payload: CategoriaCreateDTO): Promise<CategoriaDTO> {
+    const db = getDb();
+
+    const id = IdFactory.categoria(payload.nombre);
+
+    db.prepare(`
+      INSERT INTO categorias_movimiento (
+        id,
+        nombre,
+        sentido,
+        es_plan,
+        activo
+      ) VALUES (?, ?, ?, ?, 1)
+    `).run(
+      id,
+      payload.nombre,
+      payload.sentido,
+      payload.es_plan ? 1 : 0
+    );
+
+    return this.findById(id) as Promise<CategoriaDTO>;
   },
 
   /**
    * Actualiza una categoría existente.
    */
-  update: async (id: string, payload: CategoriaUpdateDTO): Promise<CategoriaDTO | null> => {
-    return Store.categorias.update(id, payload);
+  async update(id: string, payload: CategoriaUpdateDTO): Promise<CategoriaDTO | null> {
+    const db = getDb();
+
+    const fields: string[] = [];
+    const values: any[] = [];
+    console.log("Payload: ", payload);
+    if (payload.nombre !== undefined) {
+      fields.push('nombre = ?');
+      values.push(payload.nombre);
+    }
+
+    if (payload.sentido !== undefined) {
+      fields.push('sentido = ?');
+      values.push(payload.sentido);
+    }
+
+    if (payload.es_plan !== undefined) {
+      fields.push('es_plan = ?');
+      values.push(payload.es_plan ? 1 : 0);
+    }
+
+    if (payload.activo !== undefined) {
+      fields.push('activo = ?');
+      values.push(payload.activo ? 1 : 0);
+    }
+
+    if (fields.length === 0) {
+      return this.findById(id);
+    }
+
+    // mantenemos updated_at consistente con la tabla
+    fields.push('updated_at = CURRENT_TIMESTAMP');
+
+    const sql = `
+      UPDATE categorias_movimiento
+      SET ${fields.join(', ')}
+      WHERE id = ?
+    `;
+    console.log(sql);
+    console.log(values);
+    console.log(id);  
+    const result = db.prepare(sql).run(...values, id);
+    console.log(result);
+
+    if (result.changes === 0) return null;
+
+    return this.findById(id);
   },
 
   /**
    * Verifica si hay opciones activas que usan esta categoría.
    */
-  tieneOpcionesActivas: async (categoriaId: string): Promise<boolean> => {
-    return Store.categorias.hasActiveOpciones(categoriaId);
+  async tieneOpcionesActivas(categoriaId: string): Promise<boolean> {
+    const db = getDb();
+
+    const row = db.prepare(`
+      SELECT 1
+      FROM opciones_movimiento
+      WHERE categoria_id = ?
+        AND activo = 1
+      LIMIT 1
+    `).get(categoriaId);
+
+    return Boolean(row);
   },
 };

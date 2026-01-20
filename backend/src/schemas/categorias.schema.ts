@@ -7,6 +7,8 @@ export const categoriaCreateSchema = {
     nombre: { type: 'string', minLength: 1 },
     sentido: { type: 'string', enum: ['ingreso', 'egreso'] },
     orden: { type: 'number' },
+    es_plan: { type: 'boolean' },
+    activo: { type: 'boolean' },
   },
   additionalProperties: false,
 } as const;
@@ -17,6 +19,8 @@ export const categoriaUpdateSchema = {
     nombre: { type: 'string', minLength: 1 },
     activo: { type: 'boolean' },
     orden: { type: 'number' },
+    sentido: { type: 'string', enum: ['ingreso', 'egreso'] },
+    es_plan: { type: 'boolean' },
   },
   additionalProperties: false,
   minProperties: 1,

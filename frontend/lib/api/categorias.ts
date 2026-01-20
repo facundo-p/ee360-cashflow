@@ -55,7 +55,7 @@ export async function updateCategoria(id: string, updates: CategoriaUpdateInput)
 // Toggle activo status
 export async function toggleCategoriaActivo(id: string): Promise<Categoria | null> {
   try {
-    return await api.patch<Categoria>(`/categorias/${id}/toggle`);
+    return await api.patch<Categoria>(`/categorias/${id}/toggle`, {});
   } catch (e) {
     if ((e as any).status === 404) return null;
     throw e;

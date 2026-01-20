@@ -18,6 +18,9 @@ export type CategoriaCreateDTO = {
 };
 
 export type CategoriaUpdateDTO = Partial<Omit<CategoriaCreateDTO, 'sentido'>> & {
+  nombre?: string;
+  sentido?: 'ingreso' | 'egreso';
+  es_plan?: boolean;
   activo?: boolean;
 };
 

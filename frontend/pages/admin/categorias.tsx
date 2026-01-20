@@ -81,7 +81,7 @@ export default function AdminCategoriasPage() {
       await loadData();
       handleCancel();
     } catch (e) {
-      setError('Error al guardar');
+      setError('Error al guardar: ' + (e as Error).message);
     }
     setLoading(false);
   };
