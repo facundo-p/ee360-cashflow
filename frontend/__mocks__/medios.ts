@@ -5,6 +5,8 @@ export type MedioPago = {
   activo: boolean;
   orden: number;
   fecha_actualizacion: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export const mediosSeed: MedioPago[] = [

@@ -74,10 +74,10 @@ export const MediosService = {
 
     // Si cambia el nombre, validar unicidad
     if (payload.nombre && payload.nombre !== medio.nombre) {
-      const existente = await MediosRepo.findByNombre(payload.nombre);
+      const existente = await MediosRepo.findByNombre(payload.nombre.trim());
       if (existente) {
         throw new MedioPagoError(
-          `Ya existe un medio de pago con el nombre "${payload.nombre}"`,
+          `Ya existe un medio de pago con el nombre "${payload.nombre.trim()}"`,
           'DUPLICATE_NAME'
         );
       }

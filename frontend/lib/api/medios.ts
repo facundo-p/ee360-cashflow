@@ -12,11 +12,16 @@ export type MedioPago = {
 
 export type MedioPagoCreateInput = {
   nombre: string;
-  orden?: number;
+  orden: number;
+  activo?: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type MedioPagoUpdateInput = Partial<MedioPagoCreateInput> & {
   activo?: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 // List all medios (optionally filter by activo)
@@ -53,7 +58,7 @@ export async function updateMedio(id: string, updates: MedioPagoUpdateInput): Pr
 // Toggle activo status
 export async function toggleMedioActivo(id: string): Promise<MedioPago | null> {
   try {
-    return await api.patch<MedioPago>(`/medios/${id}/toggle`);
+    return await api.patch<MedioPago>(`/medios/${id}/toggle`, {});
   } catch (e) {
     if ((e as any).status === 404) return null;
     throw e;

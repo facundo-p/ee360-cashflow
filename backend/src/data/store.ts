@@ -394,7 +394,7 @@ export const Store = {
     },
     
     findByNombre: (nombre: string): MedioPagoDTO | null => {
-      return store.medios.find(m => m.nombre.toLowerCase() === nombre.toLowerCase()) ?? null;
+      return store.medios.find(m => m.nombre.toLowerCase() === nombre.toLowerCase().trim()) ?? null;
     },
     
     create: (data: Omit<MedioPagoDTO, 'created_at' | 'updated_at'>): MedioPagoDTO => {

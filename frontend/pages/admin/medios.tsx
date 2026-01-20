@@ -78,7 +78,7 @@ export default function AdminMediosPage() {
       await loadData();
       handleCancel();
     } catch (e) {
-      setError('Error al guardar');
+      setError(e.message);
     }
     setLoading(false);
   };

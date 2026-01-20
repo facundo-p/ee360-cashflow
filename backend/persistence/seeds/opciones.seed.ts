@@ -1,5 +1,5 @@
 import { getDb } from '../sqlite';
-import { IdFactory } from '../../backend/src/utils/idFactory';
+import { IdFactory } from '../../src/utils/idFactory';
 
 export const seedOpciones = () => {
   const db = getDb();
