@@ -75,7 +75,7 @@ export async function updateOpcion(id: string, updates: OpcionUpdateInput): Prom
 // Toggle activo status
 export async function toggleOpcionActivo(id: string): Promise<OpcionMovimiento | null> {
   try {
-    return await api.patch<OpcionMovimiento>(`/opciones/${id}/toggle`);
+    return await api.patch<OpcionMovimiento>(`/opciones/${id}/toggle`, {});
   } catch (e) {
     if ((e as any).status === 404) return null;
     throw e;

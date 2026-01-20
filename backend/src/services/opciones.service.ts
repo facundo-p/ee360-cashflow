@@ -21,6 +21,7 @@ export class OpcionError extends Error {
       | 'NOT_FOUND' 
       | 'DUPLICATE_COMBINATION' 
       | 'CATEGORIA_NOT_FOUND'
+      | 'DUPLICATE_NAME'
       | 'CATEGORIA_INACTIVE'
       | 'MEDIO_NOT_FOUND'
       | 'MEDIO_INACTIVE'
@@ -105,6 +106,15 @@ export const OpcionesService = {
       );
     }
 
+    // Validar que no exista otra opción con el mismo nombre
+    const existenteNombre = await OpcionesRepo.findByNombre(payload.nombre_display.trim());
+    if (existenteNombre) {
+        throw new OpcionError(
+          `Ya existe una opción con el nombre "${payload.nombre_display.trim()}"`,
+          'DUPLICATE_NAME'
+        );
+      }
+
     // Validar monto sugerido si se proporciona
     if (payload.monto_sugerido !== undefined && payload.monto_sugerido !== null) {
       if (payload.monto_sugerido <= 0) {
@@ -129,6 +139,17 @@ export const OpcionesService = {
     if (payload.monto_sugerido !== undefined && payload.monto_sugerido !== null) {
       if (payload.monto_sugerido <= 0) {
         throw new OpcionError('El monto sugerido debe ser mayor a 0', 'VALIDATION_ERROR');
+      }
+    }
+
+    // Si cambia el nombre, validar unicidad
+    if (payload.nombre_display && payload.nombre_display !== opcion.nombre_display) {
+      const existente = await OpcionesRepo.findByNombre(payload.nombre_display.trim());
+      if (existente) {
+        throw new OpcionError(
+          `Ya existe una opción con el nombre "${payload.nombre_display.trim()}"`,
+          'DUPLICATE_NAME'
+        );
       }
     }
 

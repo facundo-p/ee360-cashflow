@@ -148,11 +148,7 @@ export const CategoriasRepo = {
       SET ${fields.join(', ')}
       WHERE id = ?
     `;
-    console.log(sql);
-    console.log(values);
-    console.log(id);  
     const result = db.prepare(sql).run(...values, id);
-    console.log(result);
 
     if (result.changes === 0) return null;
 
