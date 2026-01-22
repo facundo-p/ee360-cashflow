@@ -29,6 +29,7 @@ export type OpcionCreateInput = {
   icono?: string;
   monto_sugerido?: number | null;
   orden?: number;
+  activo?: boolean;
 };
 
 export type OpcionUpdateInput = Partial<Omit<OpcionCreateInput, 'categoria_id' | 'medio_pago_id'>> & {

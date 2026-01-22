@@ -286,7 +286,9 @@ const movimientosSeed: MovimientoDTO[] = [
   {
     id: 'mov-1',
     fecha: new Date().toISOString().slice(0, 10), // Today
-    opcion_id: 't-plan-efectivo',
+    categoria_movimiento_id: 'cat-plan-mensual',
+    medio_pago_id: 'm-efectivo',
+    sentido: 'ingreso',
     monto: 70000,
     nombre_cliente: 'Juan Pérez',
     nota: 'Cuota mensual',
@@ -505,20 +507,10 @@ export const Store = {
       return store.opciones[idx];
     },
     
-    countByCategoria: (categoriaId: string, soloActivas = true): number => {
+    countByCategoriaMovimiento: (categoriaMovimientoId: string, soloActivas = true): number => {
       return store.opciones.filter(
-        o => o.categoria_id === categoriaId && (!soloActivas || o.activo)
+        o => o.categoria_id === categoriaMovimientoId && (!soloActivas || o.activo)
       ).length;
-    },
-    
-    countByMedio: (medioId: string, soloActivas = true): number => {
-      return store.opciones.filter(
-        o => o.medio_pago_id === medioId && (!soloActivas || o.activo)
-      ).length;
-    },
-    
-    hasMovimientos: (opcionId: string): boolean => {
-      return store.movimientos.some(m => m.opcion_id === opcionId);
     },
   },
 
@@ -547,16 +539,15 @@ export const Store = {
     
     listEnriquecidos: (): MovimientoEnriquecidoDTO[] => {
       return Store.movimientos.list().map(m => {
-        const opcion = Store.opciones.findByIdEnriquecida(m.opcion_id);
+        const categoria = Store.categorias.findById(m.categoria_movimiento_id);
+        const medio = Store.medios.findById(m.medio_pago_id);
         const creador = Store.usuarios.findById(m.created_by_user_id);
         const editor = m.updated_by_user_id ? Store.usuarios.findById(m.updated_by_user_id) : null;
         return {
           ...m,
-          opcion_nombre: opcion?.nombre_display ?? '',
-          categoria_nombre: opcion?.categoria_nombre ?? '',
-          categoria_sentido: opcion?.categoria_sentido ?? 'ingreso',
-          medio_pago_nombre: opcion?.medio_pago_nombre ?? '',
-          icono: opcion?.icono ?? 'default.png',
+          categoria_nombre: categoria?.nombre ?? '',
+          categoria_sentido: categoria?.sentido ?? 'ingreso',
+          medio_pago_nombre: medio?.nombre ?? '',
           created_by_nombre: creador?.nombre ?? '',
           updated_by_nombre: editor?.nombre ?? null,
         };
@@ -570,29 +561,30 @@ export const Store = {
     findByIdEnriquecido: (id: string): MovimientoEnriquecidoDTO | null => {
       const mov = Store.movimientos.findById(id);
       if (!mov) return null;
-      const opcion = Store.opciones.findByIdEnriquecida(mov.opcion_id);
+      const categoria = Store.categorias.findById(mov.categoria_movimiento_id);
+      const medio = Store.medios.findById(mov.medio_pago_id);
       const creador = Store.usuarios.findById(mov.created_by_user_id);
       const editor = mov.updated_by_user_id ? Store.usuarios.findById(mov.updated_by_user_id) : null;
       return {
         ...mov,
-        opcion_nombre: opcion?.nombre_display ?? '',
-        categoria_nombre: opcion?.categoria_nombre ?? '',
-        categoria_sentido: opcion?.categoria_sentido ?? 'ingreso',
-        medio_pago_nombre: opcion?.medio_pago_nombre ?? '',
-        icono: opcion?.icono ?? 'default.png',
+        categoria_nombre: categoria?.nombre ?? '',
+        categoria_sentido: categoria?.sentido ?? 'ingreso',
+        medio_pago_nombre: medio?.nombre ?? '',
         created_by_nombre: creador?.nombre ?? '',
         updated_by_nombre: editor?.nombre ?? null,
       };
     },
     
     findDuplicado: (params: {
-      opcion_id: string;
+      categoria_movimiento_id: string;
+      medio_pago_id: string;
       monto: number;
       nombre_cliente: string | null;
       fecha: string;
     }): MovimientoDTO | null => {
       return store.movimientos.find(m =>
-        m.opcion_id === params.opcion_id &&
+        m.categoria_movimiento_id === params.categoria_movimiento_id &&
+        m.medio_pago_id === params.medio_pago_id &&
         m.monto === params.monto &&
         m.fecha === params.fecha &&
         (m.nombre_cliente ?? '') === (params.nombre_cliente ?? '')
@@ -624,8 +616,8 @@ export const Store = {
       return store.movimientos[idx];
     },
     
-    countByOpcion: (opcionId: string): number => {
-      return store.movimientos.filter(m => m.opcion_id === opcionId).length;
+    countByCategoriaMovimiento: (categoriaMovimientoId: string): number => {
+      return store.movimientos.filter(m => m.categoria_movimiento_id === categoriaMovimientoId).length;
     },
   },
 

@@ -34,7 +34,6 @@ export default async function movimientosRoutes(fastify: FastifyInstance): Promi
       const filtros: MovimientoFiltrosDTO = {
         fecha_desde: request.query.fecha_desde,
         fecha_hasta: request.query.fecha_hasta,
-        opcion_id: request.query.opcion_id,
         categoria_id: request.query.categoria_id,
         medio_pago_id: request.query.medio_pago_id,
       };

@@ -4,7 +4,7 @@
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 // Import types from the real API (they're compatible with mock)
-export type { TipoMovimiento } from '../api/tipos';
+export type { OpcionMovimiento as TipoMovimiento } from '../api/tipos';
 
 // Lazy import to avoid loading both implementations
 let mockApi: typeof import('../api-mock/tipos') | null = null;
@@ -24,13 +24,13 @@ async function getRealApi() {
   return realApi;
 }
 
-export async function listTipos() {
+export async function listOpciones() {
   if (USE_MOCK_API) {
     const api = await getMockApi();
-    return api.listTipos();
+    return api.listOpciones();
   }
   const api = await getRealApi();
-  return api.listTipos();
+  return api.listOpciones();
 }
 
 export async function getTipo(id: string) {

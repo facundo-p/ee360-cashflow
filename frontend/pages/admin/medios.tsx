@@ -171,7 +171,7 @@ export default function AdminMediosPage() {
                           {medio.activo ? 'Activo' : 'Inactivo'}
                         </span>
                       </td>
-                      <td>{medio.fecha_actualizacion}</td>
+                      <td>{medio.updated_at}</td>
                       <td>
                         <div className="admin-actions">
                           <button onClick={() => handleEdit(medio)} className="admin-btn-sm">

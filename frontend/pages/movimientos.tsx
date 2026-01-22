@@ -2,56 +2,61 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { listMovimientos } from '../lib/api-unified/movimientos';
-import { listTipos } from '../lib/api-unified/tipos';
+import { listCategorias } from '../lib/api-unified/categorias';
 import { AppLayout } from '../components/layouts';
 import { useIsDesktop } from '../hooks/useMediaQuery';
+
+type Categoria = {
+  id: string;
+  nombre: string;
+  sentido: 'ingreso' | 'egreso';
+};
 
 function MovimientosContent() {
   const isDesktop = useIsDesktop();
   const [movs, setMovs] = useState<any[]>([]);
-  const [tipos, setTipos] = useState<any[]>([]);
-  const [filtroTipo, setFiltroTipo] = useState<string>('todos');
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [filtroCategoria, setFiltroCategoria] = useState<string>('todos');
   const hoy = new Date().toISOString().slice(0, 10);
   const [fechaDesde, setFechaDesde] = useState<string>('');
   const [fechaHasta, setFechaHasta] = useState<string>('');
 
   useEffect(() => {
     listMovimientos().then(setMovs);
-    listTipos().then(setTipos);
+    listCategorias().then(setCategorias);
   }, []);
 
   // Helper to get sentido from enriched or legacy format
   const getSentido = (m: any) => m.categoria_sentido ?? m.sentido ?? 'ingreso';
-  const getOpcionId = (m: any) => m.opcion_id ?? m.tipo_movimiento_id;
-  const getOpcionNombre = (m: any) => m.opcion_nombre ?? 'Movimiento';
+  const getCategoriaNombre = (m: any) => m.categoria_nombre ?? 'Movimiento';
   const getMedioNombre = (m: any) => m.medio_pago_nombre ?? m.medio_pago_id ?? '-';
 
   const visibles = useMemo(() => {
     return movs
       .filter((m) => {
-        const opcionId = getOpcionId(m);
-        const okTipo = filtroTipo === 'todos' ? true : opcionId === filtroTipo;
+        const categoriaId = m.categoria_movimiento_id;
+        const okCategoria = filtroCategoria === 'todos' ? true : categoriaId === filtroCategoria;
         const okFechaDesde = !fechaDesde || m.fecha >= fechaDesde;
         const okFechaHasta = !fechaHasta || m.fecha <= fechaHasta;
-        return okTipo && okFechaDesde && okFechaHasta;
+        return okCategoria && okFechaDesde && okFechaHasta;
       })
       .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id));
-  }, [movs, filtroTipo, fechaDesde, fechaHasta]);
+  }, [movs, filtroCategoria, fechaDesde, fechaHasta]);
 
   const exportCSV = () => {
     const rows = visibles.map((m) => {
       return {
         fecha: m.fecha,
         sentido: getSentido(m),
-        tipo_movimiento: getOpcionNombre(m),
+        categoria: getCategoriaNombre(m),
         medio_pago: getMedioNombre(m),
         monto: m.monto,
-        usuario: m.created_by_nombre ?? m.usuario_creador_id ?? '',
+        usuario: m.created_by_nombre ?? m.created_by_user_id ?? '',
         nombre_cliente: m.nombre_cliente ?? '',
         nota: m.nota ?? '',
       };
     });
-    const defaultRow = { fecha: '', sentido: '', tipo_movimiento: '', medio_pago: '', monto: '', usuario: '', nombre_cliente: '', nota: '' };
+    const defaultRow = { fecha: '', sentido: '', categoria: '', medio_pago: '', monto: '', usuario: '', nombre_cliente: '', nota: '' };
     const header = Object.keys(rows[0] ?? defaultRow);
     const csv = [header.join(','), ...rows.map((r) => header.map((h) => JSON.stringify((r as any)[h] ?? '')).join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -72,13 +77,13 @@ function MovimientosContent() {
 
         <div className="list-filters">
           <select
-            value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
+            value={filtroCategoria}
+            onChange={(e) => setFiltroCategoria(e.target.value)}
             className="list-filter-select"
           >
-            <option value="todos">Todos los tipos</option>
-            {tipos.map((t) => (
-              <option key={t.id} value={t.id}>{t.nombre}</option>
+            <option value="todos">Todas las categorías</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>{c.nombre} ({c.sentido})</option>
             ))}
           </select>
           <input
@@ -107,7 +112,7 @@ function MovimientosContent() {
               return (
                 <Link key={m.id} href={`/movimiento/${m.id}`} className="list-item">
                   <div className="list-item-header">
-                    <span className="list-item-title">{getOpcionNombre(m)}</span>
+                    <span className="list-item-title">{getCategoriaNombre(m)}</span>
                     <span className={sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
                       {sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
                     </span>
@@ -146,13 +151,13 @@ function MovimientosContent() {
         {/* Filtros */}
         <div className="list-filters">
           <select
-            value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
+            value={filtroCategoria}
+            onChange={(e) => setFiltroCategoria(e.target.value)}
             className="list-filter-select"
           >
-            <option value="todos">Todos los tipos</option>
-            {tipos.map((t) => (
-              <option key={t.id} value={t.id}>{t.nombre}</option>
+            <option value="todos">Todas las categorías</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>{c.nombre} ({c.sentido})</option>
             ))}
           </select>
           <input
@@ -181,7 +186,7 @@ function MovimientosContent() {
             return (
               <Link key={m.id} href={`/movimiento/${m.id}`} className="list-item">
                 <div className="list-item-header">
-                  <span className="list-item-title">{getOpcionNombre(m)}</span>
+                  <span className="list-item-title">{getCategoriaNombre(m)}</span>
                   <span className={sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
                     {sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
                   </span>

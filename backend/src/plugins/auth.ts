@@ -26,9 +26,9 @@ function extractToken(request: FastifyRequest): string | null {
 // MOCK: For development, return a mock user if no token
 // In production, this should be removed
 const MOCK_USER: UsuarioDTO = {
-  id: 'mock-user-1',
-  nombre: 'Usuario Demo',
-  email: 'demo@example.com',
+  id: 'u_admin_demo',
+  nombre: 'Admin Demo',
+  email: 'admin@gym.test',
   rol: 'admin', // Change to 'usuario' to test non-admin flows
   estado: 'activo',
 };

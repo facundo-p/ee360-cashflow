@@ -30,14 +30,18 @@ export async function getMedio(id: string): Promise<MedioPago | null> {
 
 // Create new medio
 export async function createMedio(
-  input: Omit<MedioPago, 'id' | 'fecha_actualizacion'>
+  input: { nombre: string; orden?: number; activo?: boolean }
 ): Promise<MedioPago> {
   const data = getStoredData();
-  const now = new Date().toISOString().slice(0, 10);
+  const now = new Date().toISOString();
+  const maxOrden = Math.max(...data.map(m => m.orden), 0);
   const newMedio: MedioPago = {
-    ...input,
     id: `m-${Date.now()}`,
-    fecha_actualizacion: now,
+    nombre: input.nombre,
+    orden: input.orden ?? maxOrden + 1,
+    activo: input.activo ?? true,
+    created_at: now,
+    updated_at: now,
   };
   data.push(newMedio);
   saveData(data);
@@ -47,7 +51,7 @@ export async function createMedio(
 // Update medio
 export async function updateMedio(
   id: string,
-  updates: Partial<Omit<MedioPago, 'id'>>
+  updates: { nombre?: string; orden?: number; activo?: boolean }
 ): Promise<MedioPago | null> {
   const data = getStoredData();
   const index = data.findIndex((m) => m.id === id);
@@ -56,7 +60,7 @@ export async function updateMedio(
   data[index] = {
     ...data[index],
     ...updates,
-    fecha_actualizacion: new Date().toISOString().slice(0, 10),
+    updated_at: new Date().toISOString(),
   };
   saveData(data);
   return data[index];
@@ -80,13 +84,13 @@ export async function hasDependentOpciones(medioId: string): Promise<boolean> {
 // Reorder medios
 export async function reorderMedios(orderedIds: string[]): Promise<MedioPago[]> {
   const data = getStoredData();
-  const now = new Date().toISOString().slice(0, 10);
+  const now = new Date().toISOString();
   
   orderedIds.forEach((id, index) => {
     const medio = data.find((m) => m.id === id);
     if (medio) {
       medio.orden = index + 1;
-      medio.fecha_actualizacion = now;
+      medio.updated_at = now;
     }
   });
   

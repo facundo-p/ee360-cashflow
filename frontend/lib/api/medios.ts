@@ -12,16 +12,14 @@ export type MedioPago = {
 
 export type MedioPagoCreateInput = {
   nombre: string;
-  orden: number;
+  orden?: number;
   activo?: boolean;
-  created_at?: string;
-  updated_at?: string;
 };
 
-export type MedioPagoUpdateInput = Partial<MedioPagoCreateInput> & {
+export type MedioPagoUpdateInput = {
+  nombre?: string;
+  orden?: number;
   activo?: boolean;
-  created_at?: string;
-  updated_at?: string;
 };
 
 // List all medios (optionally filter by activo)

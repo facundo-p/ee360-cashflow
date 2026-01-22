@@ -10,12 +10,9 @@ export type {
   CategoriaUpdateInput
 } from '../api/categorias';
 
-// Also export CategoriaMovimiento for backward compatibility
+// CategoriaMovimiento is an alias for Categoria
 import type { Categoria } from '../api/categorias';
-export type CategoriaMovimiento = Categoria & {
-  fecha_creacion?: string;
-  fecha_actualizacion?: string;
-};
+export type CategoriaMovimiento = Categoria;
 
 // Lazy imports
 let mockApi: typeof import('../api-mock/categorias') | null = null;
@@ -35,7 +32,7 @@ async function getRealApi() {
   return realApi;
 }
 
-export async function listCategorias(soloActivas = false) {
+export async function listCategorias(soloActivas = false): Promise<Categoria[]> {
   if (USE_MOCK_API) {
     const api = await getMockApi();
     return api.listCategorias(soloActivas);
@@ -44,7 +41,7 @@ export async function listCategorias(soloActivas = false) {
   return api.listCategorias(soloActivas);
 }
 
-export async function getCategoria(id: string) {
+export async function getCategoria(id: string): Promise<Categoria | null> {
   if (USE_MOCK_API) {
     const api = await getMockApi();
     return api.getCategoria(id);
@@ -53,7 +50,12 @@ export async function getCategoria(id: string) {
   return api.getCategoria(id);
 }
 
-export async function createCategoria(input: Parameters<typeof import('../api/categorias').createCategoria>[0]) {
+export async function createCategoria(input: {
+  nombre: string;
+  sentido: 'ingreso' | 'egreso';
+  es_plan?: boolean;
+  activo?: boolean;
+}): Promise<Categoria> {
   if (USE_MOCK_API) {
     const api = await getMockApi();
     return api.createCategoria(input);
@@ -62,7 +64,11 @@ export async function createCategoria(input: Parameters<typeof import('../api/ca
   return api.createCategoria(input);
 }
 
-export async function updateCategoria(id: string, updates: Parameters<typeof import('../api/categorias').updateCategoria>[1]) {
+export async function updateCategoria(id: string, updates: {
+  nombre?: string;
+  es_plan?: boolean;
+  activo?: boolean;
+}): Promise<Categoria | null> {
   if (USE_MOCK_API) {
     const api = await getMockApi();
     return api.updateCategoria(id, updates);
@@ -71,7 +77,7 @@ export async function updateCategoria(id: string, updates: Parameters<typeof imp
   return api.updateCategoria(id, updates);
 }
 
-export async function toggleCategoriaActivo(id: string) {
+export async function toggleCategoriaActivo(id: string): Promise<Categoria | null> {
   if (USE_MOCK_API) {
     const api = await getMockApi();
     return api.toggleCategoriaActivo(id);
@@ -80,7 +86,7 @@ export async function toggleCategoriaActivo(id: string) {
   return api.toggleCategoriaActivo(id);
 }
 
-export async function hasDependentOpciones(categoriaId: string) {
+export async function hasDependentOpciones(categoriaId: string): Promise<boolean> {
   if (USE_MOCK_API) {
     const api = await getMockApi();
     return api.hasDependentOpciones(categoriaId);

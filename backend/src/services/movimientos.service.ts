@@ -2,7 +2,7 @@
 // Reglas según business-rules.md sección 2.
 
 import { MovimientosRepo } from '../repositories/movimientos.repo';
-import { OpcionesRepo } from '../repositories/opciones.repo';
+import { CategoriasRepo } from '../repositories/categorias.repo';
 import { AuditoriaRepo } from '../repositories/auditoria.repo';
 import { UsuariosRepo } from '../repositories/usuarios.repo';
 import { 
@@ -24,8 +24,8 @@ export class MovimientoError extends Error {
     message: string,
     public code: 
       | 'NOT_FOUND' 
-      | 'OPCION_NOT_FOUND'
-      | 'OPCION_INACTIVE'
+      | 'CATEGORIA_NOT_FOUND'
+      | 'CATEGORIA_INACTIVE'
       | 'VALIDATION_ERROR'
       | 'PERMISSION_DENIED'
       | 'EDIT_WINDOW_EXPIRED'
@@ -95,81 +95,72 @@ export const MovimientosService = {
    * Validaciones según sección 2.4 y 2.5 de business-rules.md
    */
   create: async (
-    payload: MovimientoCreateDTO, 
+    payload: MovimientoCreateDTO,
     userId: string
   ): Promise<MovimientoCreateResponseDTO> => {
-    // === Validaciones básicas (sección 2.5) ===
-    
-    // Validar monto > 0
-    if (!payload.monto || payload.monto <= 0) {
+  
+    if (payload.monto <= 0) {
       throw new MovimientoError('El monto debe ser mayor a 0', 'VALIDATION_ERROR');
     }
-
-    // Validar fecha no futura
+  
     const fechaMovimiento = new Date(payload.fecha);
     const hoy = new Date();
-    hoy.setHours(23, 59, 59, 999); // Fin del día actual
+    hoy.setHours(23, 59, 59, 999);
     if (fechaMovimiento > hoy) {
       throw new MovimientoError('La fecha no puede ser futura', 'VALIDATION_ERROR');
     }
-
-    // Validar que opción exista (con datos enriquecidos para obtener sentido)
-    const opcion = await OpcionesRepo.findByIdEnriquecida(payload.opcion_id);
-    if (!opcion) {
-      throw new MovimientoError('La opción de movimiento no existe', 'OPCION_NOT_FOUND');
+  
+    const categoria = await CategoriasRepo.findById(payload.categoria_movimiento_id);
+    if (!categoria) {
+      throw new MovimientoError('La categoría no existe', 'CATEGORIA_NOT_FOUND');
     }
-
-    // Validar que opción esté activa
-    if (!opcion.activo) {
-      throw new MovimientoError(
-        'La opción de movimiento está inactiva. No se pueden crear nuevos movimientos con opciones inactivas.',
-        'OPCION_INACTIVE'
-      );
+  
+    if (!categoria.activo) {
+      throw new MovimientoError('La categoría está inactiva', 'CATEGORIA_INACTIVE');
     }
-
-    // Validar nota obligatoria para egresos
-    if (opcion.categoria_sentido === 'egreso' && (!payload.nota || !payload.nota.trim())) {
+  
+    if (categoria.sentido === 'egreso' && (!payload.nota || !payload.nota.trim())) {
       throw new MovimientoError(
         'La nota es obligatoria para movimientos de egreso',
         'VALIDATION_ERROR'
       );
     }
-
-    // === Detección de duplicados ANTES de crear (sección 2.4) ===
-    const posibleDuplicado = await MovimientosRepo.findDuplicado({
-      opcion_id: payload.opcion_id,
+  
+    const duplicado = await MovimientosRepo.findDuplicado({
+      categoria_movimiento_id: payload.categoria_movimiento_id,
+      medio_pago_id: payload.medio_pago_id,
       monto: payload.monto,
       nombre_cliente: payload.nombre_cliente ?? null,
       fecha: payload.fecha,
     });
-
-    // Si hay duplicado y el usuario NO ha confirmado → advertir sin crear
-    if (posibleDuplicado && !payload.confirmar_duplicado) {
+  
+    if (duplicado && !payload.confirmar_duplicado) {
       return {
         created: false,
         warning: 'posible_movimiento_duplicado',
-        movimiento_duplicado_id: posibleDuplicado.id,
+        movimiento_duplicado_id: duplicado.id,
         requires_confirmation: true,
       };
     }
-
-    // Si no hay duplicado, o el usuario confirmó → crear el movimiento
-    const movimiento = await MovimientosRepo.create(payload, userId);
-
-    // Retornar éxito
-    const response: MovimientoCreateResponseDTO = { 
-      movimiento, 
-      created: true 
+  
+    const movimiento = await MovimientosRepo.create(
+      {
+        ...payload,
+        sentido: categoria.sentido,
+      },
+      userId
+    );
+  
+    return {
+      created: true,
+      movimiento,
+      ...(duplicado && {
+        warning: 'posible_movimiento_duplicado',
+        movimiento_duplicado_id: duplicado.id,
+      }),
     };
-    
-    if (posibleDuplicado) {
-      // Se creó a pesar de duplicado (usuario confirmó)
-      response.warning = 'posible_movimiento_duplicado';
-      response.movimiento_duplicado_id = posibleDuplicado.id;
-    }
-
-    return response;
   },
+  
 
   /**
    * Actualiza un movimiento existente.
@@ -209,32 +200,19 @@ export const MovimientosService = {
       }
     }
 
-    // Obtener opción actual (para validar sentido)
-    const opcionActual = await OpcionesRepo.findByIdEnriquecida(movimiento.opcion_id);
+    const categoria = await CategoriasRepo.findById(
+      payload.categoria_movimiento_id ?? movimiento.categoria_movimiento_id
+    );
     
-    if (payload.opcion_id !== undefined) {
-      const opcion = await OpcionesRepo.findByIdEnriquecida(payload.opcion_id);
-      if (!opcion) {
-        throw new MovimientoError('La opción de movimiento no existe', 'OPCION_NOT_FOUND');
-      }
-      if (!opcion.activo) {
-        throw new MovimientoError(
-          'La opción de movimiento está inactiva',
-          'OPCION_INACTIVE'
-        );
-      }
-      
-      // Validar nota si la nueva opción es egreso
-      const notaFinal = payload.nota !== undefined ? payload.nota : movimiento.nota;
-      if (opcion.categoria_sentido === 'egreso' && (!notaFinal || !notaFinal.trim())) {
-        throw new MovimientoError(
-          'La nota es obligatoria para movimientos de egreso',
-          'VALIDATION_ERROR'
-        );
-      }
-    } else if (payload.nota !== undefined && opcionActual?.categoria_sentido === 'egreso') {
-      // Si se está cambiando la nota y el movimiento es egreso, validar que no esté vacía
-      if (!payload.nota || !payload.nota.trim()) {
+    if (!categoria) {
+      throw new MovimientoError('La categoría no existe', 'CATEGORIA_NOT_FOUND');
+    }
+    
+    if (categoria.sentido === 'egreso') {
+      const notaFinal =
+        payload.nota !== undefined ? payload.nota : movimiento.nota;
+    
+      if (!notaFinal || !notaFinal.trim()) {
         throw new MovimientoError(
           'La nota es obligatoria para movimientos de egreso',
           'VALIDATION_ERROR'
@@ -299,7 +277,8 @@ function detectarCambios(
 
   const camposAComparar: Array<keyof MovimientoUpdateDTO> = [
     'fecha',
-    'opcion_id',
+    'categoria_movimiento_id',
+    'medio_pago_id',
     'monto',
     'nombre_cliente',
     'nota',

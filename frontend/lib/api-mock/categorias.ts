@@ -29,15 +29,18 @@ export async function getCategoria(id: string): Promise<CategoriaMovimiento | nu
 
 // Create new categoria
 export async function createCategoria(
-  input: Omit<CategoriaMovimiento, 'id' | 'fecha_creacion' | 'fecha_actualizacion'>
+  input: { nombre: string; sentido: 'ingreso' | 'egreso'; es_plan?: boolean; activo?: boolean }
 ): Promise<CategoriaMovimiento> {
   const data = getStoredData();
-  const now = new Date().toISOString().slice(0, 10);
+  const now = new Date().toISOString();
   const newCategoria: CategoriaMovimiento = {
-    ...input,
     id: `cat-${Date.now()}`,
-    fecha_creacion: now,
-    fecha_actualizacion: now,
+    nombre: input.nombre,
+    sentido: input.sentido,
+    es_plan: input.es_plan ?? false,
+    activo: input.activo ?? true,
+    created_at: now,
+    updated_at: now,
   };
   data.push(newCategoria);
   saveData(data);
@@ -47,7 +50,7 @@ export async function createCategoria(
 // Update categoria
 export async function updateCategoria(
   id: string,
-  updates: Partial<Omit<CategoriaMovimiento, 'id' | 'fecha_creacion'>>
+  updates: { nombre?: string; es_plan?: boolean; activo?: boolean }
 ): Promise<CategoriaMovimiento | null> {
   const data = getStoredData();
   const index = data.findIndex((c) => c.id === id);
@@ -56,7 +59,7 @@ export async function updateCategoria(
   data[index] = {
     ...data[index],
     ...updates,
-    fecha_actualizacion: new Date().toISOString().slice(0, 10),
+    updated_at: new Date().toISOString(),
   };
   saveData(data);
   return data[index];

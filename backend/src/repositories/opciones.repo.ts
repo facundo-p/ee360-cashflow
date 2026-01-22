@@ -270,7 +270,11 @@ export const OpcionesRepo = {
       now
     );
 
-    return this.findById(id)!;
+    const created = await this.findById(id);
+    if (!created) {
+      throw new Error(`Opción ${id} no encontrada después de crear`);
+    }
+    return created;
   },
 
   /**

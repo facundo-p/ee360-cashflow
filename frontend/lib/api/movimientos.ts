@@ -4,8 +4,10 @@ import api from './client';
 export type Movimiento = {
   id: string;
   fecha: string;
-  opcion_id: string;
+  categoria_movimiento_id: string;
+  sentido: 'ingreso' | 'egreso';
   monto: number;
+  medio_pago_id: string;
   nombre_cliente: string | null;
   nota: string | null;
   created_by_user_id: string;
@@ -15,18 +17,17 @@ export type Movimiento = {
 };
 
 export type MovimientoEnriquecido = Movimiento & {
-  opcion_nombre: string;
   categoria_nombre: string;
   categoria_sentido: 'ingreso' | 'egreso';
   medio_pago_nombre: string;
-  icono: string;
   created_by_nombre: string;
   updated_by_nombre: string | null;
 };
 
 export type MovimientoCreateInput = {
   fecha: string;
-  opcion_id: string;
+  categoria_movimiento_id: string;
+  medio_pago_id: string;
   monto: number;
   nombre_cliente?: string | null;
   nota?: string | null;
@@ -38,7 +39,6 @@ export type MovimientoUpdateInput = Partial<Omit<MovimientoCreateInput, 'confirm
 export type MovimientoFiltros = {
   fecha_desde?: string;
   fecha_hasta?: string;
-  opcion_id?: string;
   categoria_id?: string;
   medio_pago_id?: string;
 };
@@ -57,7 +57,6 @@ function buildQueryString(filtros?: MovimientoFiltros): string {
   const params = new URLSearchParams();
   if (filtros.fecha_desde) params.append('fecha_desde', filtros.fecha_desde);
   if (filtros.fecha_hasta) params.append('fecha_hasta', filtros.fecha_hasta);
-  if (filtros.opcion_id) params.append('opcion_id', filtros.opcion_id);
   if (filtros.categoria_id) params.append('categoria_id', filtros.categoria_id);
   if (filtros.medio_pago_id) params.append('medio_pago_id', filtros.medio_pago_id);
   const qs = params.toString();

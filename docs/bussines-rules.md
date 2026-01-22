@@ -95,7 +95,7 @@ Al intentar crear un nuevo movimiento, el sistema **DEBE advertir** (no necesari
 * `fecha_movimiento`:
 
   * no puede ser futura
-* `tipo_movimiento`:
+* `categoria_movimiento`:
 
   * debe existir
   * debe estar activo al momento de la creación

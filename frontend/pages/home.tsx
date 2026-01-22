@@ -5,18 +5,18 @@ import Botonera from '../components/Botonera';
 import Dashboard from '../components/Dashboard';
 import { AppLayout } from '../components/layouts';
 import { useIsDesktop } from '../hooks/useMediaQuery';
-import { listTipos } from '../lib/api-unified/tipos';
+import { listOpciones } from '../lib/api-unified/tipos';
 
 function MobileHomeContent() {
   const router = useRouter();
   const [tipos, setTipos] = useState<any[]>([]);
 
   useEffect(() => {
-    listTipos().then(setTipos);
+    listOpciones().then(setTipos);
   }, []);
 
-  const handleSelect = (tipoId: string) => {
-    router.push(`/movimiento-nuevo?tipo=${tipoId}`);
+  const handleSelect = (opcionId: string) => {
+    router.push(`/movimiento-nuevo?opcion=${opcionId}`);
   };
 
   return (

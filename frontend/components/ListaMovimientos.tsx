@@ -9,12 +9,11 @@ type Props = {
 };
 
 export default function ListaMovimientos({ movimientos, tipos, medios }: Props) {
-  const tipoById = (id: string) => tipos.find((t) => t.id === id);
   const medioById = (id: string) => medios.find((m) => m.id === id);
   
   // Helpers for backwards compatibility with enriched data
   const getSentido = (m: any) => m.categoria_sentido ?? m.sentido ?? 'ingreso';
-  const getOpcionNombre = (m: any, tipo: any) => m.opcion_nombre ?? tipo?.nombre ?? 'Movimiento';
+  const getCategoriaNombre = (m: any) => m.categoria_nombre ?? 'Movimiento';
   const getMedioNombre = (m: any, medio: any) => m.medio_pago_nombre ?? medio?.nombre ?? m.medio_pago_id ?? '-';
   
   return (
@@ -25,13 +24,12 @@ export default function ListaMovimientos({ movimientos, tipos, medios }: Props) 
 
       <div className="legacy-grid">
         {movimientos.map((m) => {
-          const tipo = tipoById(m.opcion_id ?? m.tipo_movimiento_id);
           const medio = medioById(m.medio_pago_id);
           const sentido = getSentido(m);
           return (
             <Link key={m.id} href={`/movimiento/${m.id}`} className="legacy-card">
               <div className="legacy-card-header">
-                <strong className="legacy-card-title">{getOpcionNombre(m, tipo)}</strong>
+                <strong className="legacy-card-title">{getCategoriaNombre(m)}</strong>
                 <span className={sentido === 'ingreso' ? 'legacy-amount-ingreso' : 'legacy-amount-egreso'}>
                   ${m.monto.toLocaleString()}
                 </span>

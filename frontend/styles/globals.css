@@ -244,6 +244,11 @@
   @apply text-xs text-red-400 mt-1;
 }
 
+.form-hint {
+  @apply block text-xs mt-1;
+  color: var(--color-text-subtle, #888);
+}
+
 .form-actions {
   @apply shrink-0 px-4 py-4;
 }

@@ -3,17 +3,22 @@
 
 export const movimientoCreateSchema = {
   type: 'object',
-  required: ['fecha', 'opcion_id', 'monto'],
+  required: ['fecha', 'categoria_movimiento_id', 'medio_pago_id', 'monto'],
   properties: {
     fecha: { 
       type: 'string', 
       format: 'date',
       description: 'Fecha del movimiento (YYYY-MM-DD)'
     },
-    opcion_id: { 
+    categoria_movimiento_id: { 
       type: 'string',
       minLength: 1,
-      description: 'ID de la opción de movimiento'
+      description: 'ID de la categoría de movimiento'
+    },
+    medio_pago_id: { 
+      type: 'string',
+      minLength: 1,
+      description: 'ID del medio de pago'
     },
     monto: { 
       type: 'number',
@@ -44,11 +49,6 @@ export const movimientoUpdateSchema = {
       type: 'string', 
       format: 'date',
       description: 'Fecha del movimiento (YYYY-MM-DD)'
-    },
-    opcion_id: { 
-      type: 'string',
-      minLength: 1,
-      description: 'ID de la opción de movimiento'
     },
     monto: { 
       type: 'number',
@@ -81,7 +81,6 @@ export const movimientoQuerySchema = {
   properties: {
     fecha_desde: { type: 'string', format: 'date' },
     fecha_hasta: { type: 'string', format: 'date' },
-    opcion_id: { type: 'string' },
     categoria_id: { type: 'string' },
     medio_pago_id: { type: 'string' },
   },

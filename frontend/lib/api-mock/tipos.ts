@@ -3,20 +3,28 @@
 import { mockDelay } from './client';
 import { listOpcionesEnriquecidas } from './opciones';
 
-// Tipo compatible con el modelo anterior (para Botonera y FormMovimiento)
-export type TipoMovimiento = {
+// Tipo para opciones transformadas a formato compatible
+export type OpcionMovimiento = {
   id: string;
-  nombre: string;
+  categoria_id: string;
+  medio_pago_id: string;
+  nombre_display: string;
+  nombre: string;  // alias de nombre_display para compatibilidad
   sentido: 'ingreso' | 'egreso';
   icono: string;
   monto_sugerido: number | null;
-  medio_pago_id: string;
   es_plan: boolean;
   activo: boolean;
+  orden: number;
+  fecha_actualizacion_precio: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
-// Convierte OpcionMovimiento enriquecida al formato legacy
-export async function listTipos(): Promise<TipoMovimiento[]> {
+// Legacy type alias
+export type TipoMovimiento = OpcionMovimiento;
+
+export async function listOpciones(): Promise<OpcionMovimiento[]> {
   await mockDelay();
   const opciones = await listOpcionesEnriquecidas();
   
@@ -24,24 +32,25 @@ export async function listTipos(): Promise<TipoMovimiento[]> {
     .filter((o) => o.activo)
     .map((o) => ({
       id: o.id,
-      nombre: o.nombre_display,
+      categoria_id: o.categoria_id,
+      medio_pago_id: o.medio_pago_id,
+      nombre_display: o.nombre_display,
+      nombre: o.nombre_display, // alias
       sentido: o.sentido as 'ingreso' | 'egreso',
       icono: o.icono,
       monto_sugerido: o.monto_sugerido,
-      medio_pago_id: o.medio_pago_id,
+      orden: o.orden,
+      fecha_actualizacion_precio: o.fecha_actualizacion_precio,
+      created_at: o.created_at,
+      updated_at: o.updated_at,
       es_plan: o.es_plan,
       activo: o.activo,
     }))
-    .sort((a, b) => {
-      // Get original orden from opciones
-      const ordenA = opciones.find((o) => o.id === a.id)?.orden ?? 99;
-      const ordenB = opciones.find((o) => o.id === b.id)?.orden ?? 99;
-      return ordenA - ordenB;
-    });
+    .sort((a, b) => a.orden - b.orden);
 }
 
 // Obtener un tipo por ID
 export async function getTipo(id: string): Promise<TipoMovimiento | null> {
-  const tipos = await listTipos();
+  const tipos = await listOpciones();
   return tipos.find((t) => t.id === id) ?? null;
 }

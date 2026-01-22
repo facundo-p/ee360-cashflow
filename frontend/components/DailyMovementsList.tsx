@@ -42,7 +42,7 @@ export default function DailyMovementsList({ compact = false, refreshKey = 0, li
               const sentido = m.categoria_sentido ?? m.sentido ?? 'ingreso';
               return (
                 <Link key={m.id} href={`/movimiento/${m.id}`} className="movements-compact-item">
-                  <span className="movements-compact-name">{m.opcion_nombre ?? m.tipo_movimiento_id ?? 'Movimiento'}</span>
+                  <span className="movements-compact-name">{m.categoria_nombre ?? 'Movimiento'}</span>
                   <span className={sentido === 'ingreso' ? 'movements-compact-ingreso' : 'movements-compact-egreso'}>
                     {sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
                   </span>
@@ -69,7 +69,7 @@ export default function DailyMovementsList({ compact = false, refreshKey = 0, li
           return (
             <Link key={m.id} href={`/movimiento/${m.id}`} className="list-item">
               <div className="list-item-header">
-                <span className="list-item-title">{m.opcion_nombre ?? 'Movimiento'}</span>
+                <span className="list-item-title">{m.categoria_nombre ?? 'Movimiento'}</span>
                 <span className={sentido === 'ingreso' ? 'list-item-amount-ingreso' : 'list-item-amount-egreso'}>
                   {sentido === 'egreso' ? '-' : '+'}${m.monto.toLocaleString()}
                 </span>

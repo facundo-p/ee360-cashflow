@@ -192,7 +192,7 @@ export default function AdminCategoriasPage() {
                           {cat.activo ? 'Activo' : 'Inactivo'}
                         </span>
                       </td>
-                      <td>{cat.fecha_actualizacion}</td>
+                      <td>{cat.updated_at?.slice(0, 10) ?? '-'}</td>
                       <td>
                         <div className="admin-actions">
                           <button onClick={() => handleEdit(cat)} className="admin-btn-sm">

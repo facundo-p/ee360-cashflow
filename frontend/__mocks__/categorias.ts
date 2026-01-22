@@ -5,8 +5,8 @@ export type CategoriaMovimiento = {
   sentido: 'ingreso' | 'egreso';
   es_plan: boolean;
   activo: boolean;
-  fecha_creacion: string;
-  fecha_actualizacion: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export const categoriasSeed: CategoriaMovimiento[] = [
@@ -16,8 +16,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: true,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-plan-mensual',
@@ -25,8 +25,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: true,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-plan-semestral',
@@ -34,8 +34,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: true,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-clase-kids',
@@ -43,8 +43,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: true,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-plan-kids',
@@ -52,8 +52,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: true,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-bebida',
@@ -61,8 +61,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: false,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-merch',
@@ -70,8 +70,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: false,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-otros-ingreso',
@@ -79,8 +79,8 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'ingreso',
     es_plan: false,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cat-otros-egreso',
@@ -88,7 +88,7 @@ export const categoriasSeed: CategoriaMovimiento[] = [
     sentido: 'egreso',
     es_plan: false,
     activo: true,
-    fecha_creacion: '2024-01-01',
-    fecha_actualizacion: '2024-01-01',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
 ];

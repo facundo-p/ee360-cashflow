@@ -15,6 +15,7 @@ export type CategoriaCreateInput = {
   nombre: string;
   sentido: 'ingreso' | 'egreso';
   es_plan?: boolean;
+  activo?: boolean;
 };
 
 export type CategoriaUpdateInput = Partial<Omit<CategoriaCreateInput, 'sentido'>> & {

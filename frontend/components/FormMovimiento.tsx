@@ -1,14 +1,28 @@
-// Formulario de movimiento: estilo espartano con dropdown de tipo.
+// Formulario de movimiento: Usa categorías y medios de pago
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { listTipos } from '../lib/api-unified/tipos';
+import { listCategorias } from '../lib/api-unified/categorias';
 import { listMedios } from '../lib/api-unified/medios';
+import { listOpcionesEnriquecidas, type OpcionEnriquecida } from '../lib/api-unified/opciones';
 import { createMovimiento, updateMovimiento, getMovimiento } from '../lib/api-unified/movimientos';
 import { useFocusRules } from '../hooks/useFocusRules';
 import { useSessionMock } from '../hooks/useSessionMock';
 import Toast from './Toast';
 
-const DEFAULT_ICON = '/icons/default.png';
+type Categoria = {
+  id: string;
+  nombre: string;
+  sentido: 'ingreso' | 'egreso';
+  es_plan: boolean;
+  activo: boolean;
+};
+
+type MedioPago = {
+  id: string;
+  nombre: string;
+  activo: boolean;
+  orden: number;
+};
 
 type Props = {
   mode: 'create' | 'edit';
@@ -20,41 +34,88 @@ type Props = {
 export default function FormMovimiento({ mode, movimientoId, embedded = false, onSuccess }: Props) {
   const router = useRouter();
   const { user } = useSessionMock();
-  const [tipos, setTipos] = useState<any[]>([]);
-  const [medios, setMedios] = useState<any[]>([]);
-  const [tipoId, setTipoId] = useState<string | null>(null);
+  
+  // Datos maestros
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [medios, setMedios] = useState<MedioPago[]>([]);
+  const [opciones, setOpciones] = useState<OpcionEnriquecida[]>([]);
+  
+  // Estado del dropdown de carga rápida (no se persiste, solo precarga)
+  const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>('');
+  
+  // Estado del formulario
+  const [categoriaId, setCategoriaId] = useState<string | null>(null);
   const [medioId, setMedioId] = useState<string | null>(null);
   const [monto, setMonto] = useState<number | ''>('');
   const [fecha, setFecha] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [nombreCliente, setNombreCliente] = useState<string>('');
   const [nota, setNota] = useState<string>('');
+  
+  // UI state
   const [toast, setToast] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ fecha?: string; monto?: string; medio_pago?: string; nombre_cliente?: string; nota?: string }>({});
+  const [errors, setErrors] = useState<{ 
+    fecha?: string; 
+    monto?: string; 
+    medio_pago?: string; 
+    nombre_cliente?: string; 
+    nota?: string 
+  }>({});
   
   // Estado para confirmación de duplicados
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
   const [pendingPayload, setPendingPayload] = useState<any>(null);
+  
+  // Flag para evitar sobrescribir valores iniciales múltiples veces
+  const [initialOpcionApplied, setInitialOpcionApplied] = useState(false);
 
-  // Cargar datos
+  // Cargar datos maestros
   useEffect(() => {
-    listTipos().then((t) => {
-      setTipos(t);
-      const fromQuery = typeof router.query.tipo === 'string' ? router.query.tipo : null;
-      const chosen = fromQuery && t.find((x: any) => x.id === fromQuery) ? fromQuery : t[0]?.id ?? null;
-      setTipoId(chosen);
+    listCategorias(true).then((cats: Categoria[]) => {
+      setCategorias(cats);
+      // Solo pre-seleccionar primera categoría si no hay una ya seleccionada
+      if (cats.length > 0 && !categoriaId) {
+        setCategoriaId(cats[0].id);
+      }
     });
-    listMedios().then(setMedios);
-  }, [router.query.tipo]);
+    
+    listMedios(true).then((m: MedioPago[]) => {
+      setMedios(m);
+      // Solo pre-seleccionar primer medio si no hay uno ya seleccionado
+      if (m.length > 0 && !medioId) {
+        setMedioId(m[0].id);
+      }
+    });
+    
+    // Cargar opciones para carga rápida
+    listOpcionesEnriquecidas(true).then((opts: OpcionEnriquecida[]) => {
+      setOpciones(opts);
+    });
+  }, []);
+
+  // Aplicar opción inicial desde query string (integración con botonera mobile)
+  useEffect(() => {
+    if (initialOpcionApplied || mode === 'edit') return;
+    
+    const opcionFromQuery = typeof router.query.opcion === 'string' ? router.query.opcion : null;
+    
+    if (opcionFromQuery && opciones.length > 0) {
+      const opcion = opciones.find(o => o.id === opcionFromQuery);
+      if (opcion) {
+        setOpcionSeleccionada(opcionFromQuery);
+        aplicarOpcion(opcion);
+        setInitialOpcionApplied(true);
+      }
+    }
+  }, [router.query.opcion, opciones, mode, initialOpcionApplied]);
 
   // Si edición, precargar movimiento
   useEffect(() => {
     if (mode === 'edit' && movimientoId) {
       getMovimiento(movimientoId).then((mov: any) => {
         if (!mov) return;
-        // Support both new (opcion_id) and legacy (tipo_movimiento_id) formats
-        setTipoId(mov.opcion_id ?? mov.tipo_movimiento_id);
-        setMedioId(mov.medio_pago_id ?? null);
+        setCategoriaId(mov.categoria_movimiento_id);
+        setMedioId(mov.medio_pago_id);
         setMonto(mov.monto);
         setFecha(mov.fecha);
         setNombreCliente(mov.nombre_cliente ?? '');
@@ -63,32 +124,43 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     }
   }, [mode, movimientoId]);
 
-  const tipoActual = useMemo(() => tipos.find((t) => t.id === tipoId), [tipos, tipoId]);
+  // Categoría actual seleccionada
+  const categoriaActual = useMemo(
+    () => categorias.find((c) => c.id === categoriaId),
+    [categorias, categoriaId]
+  );
 
-  useEffect(() => {
-    if (tipoActual) {
-      if (tipoActual.monto_sugerido != null && mode === 'create') {
-        setMonto(tipoActual.monto_sugerido);
-      } else if (mode === 'create' && tipoActual.monto_sugerido == null) {
-        setMonto('');
-      }
-      if (mode === 'create') {
-        setMedioId(tipoActual.medio_pago_id ?? medios[0]?.id ?? null);
-      }
+  // Focus rules - si hay monto sugerido, foco en guardar; si no, en monto
+  const tieneMonto = monto !== '';
+  const focusRule = useFocusRules(tieneMonto);
+
+  // Función para aplicar los valores de una opción
+  const aplicarOpcion = (opcion: OpcionEnriquecida) => {
+    setCategoriaId(opcion.categoria_id);
+    setMedioId(opcion.medio_pago_id);
+    if (opcion.monto_sugerido !== null) {
+      setMonto(opcion.monto_sugerido);
     }
-  }, [tipoActual, medios, mode]);
+  };
 
-  const focusRule = useFocusRules(tipoActual?.monto_sugerido != null);
-
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = DEFAULT_ICON;
+  // Handler cuando se selecciona una opción del dropdown
+  const handleOpcionChange = (opcionId: string) => {
+    setOpcionSeleccionada(opcionId);
+    
+    if (!opcionId) return; // Si se deselecciona, no hacer nada
+    
+    const opcion = opciones.find(o => o.id === opcionId);
+    if (opcion) {
+      aplicarOpcion(opcion);
+    }
   };
 
   const buildPayload = (confirmarDuplicado = false) => ({
     fecha,
-    opcion_id: tipoActual!.id,
+    categoria_movimiento_id: categoriaId!,
+    medio_pago_id: medioId!,
     monto: Number(monto),
-    nombre_cliente: tipoActual!.es_plan ? nombreCliente || null : null,
+    nombre_cliente: categoriaActual?.es_plan ? nombreCliente || null : null,
     nota: nota || null,
     confirmar_duplicado: confirmarDuplicado,
   });
@@ -99,9 +171,10 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     
     if (embedded && onSuccess) {
       // Reset form for embedded mode
-      setMonto(tipoActual?.monto_sugerido ?? '');
+      setMonto('');
       setNombreCliente('');
       setNota('');
+      setOpcionSeleccionada('');
       onSuccess();
       setTimeout(() => setToast(''), 2000);
     } else {
@@ -114,11 +187,15 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     if (!fecha) nextErrors.fecha = 'La fecha es obligatoria.';
     if (monto === '') nextErrors.monto = 'El monto es obligatorio.';
     if (!medioId) nextErrors.medio_pago = 'El medio de pago es obligatorio.';
-    if (tipoActual?.es_plan && nombreCliente === '') nextErrors.nombre_cliente = 'El nombre de cliente es obligatorio.';
+    if (categoriaActual?.es_plan && nombreCliente === '') {
+      nextErrors.nombre_cliente = 'El nombre de cliente es obligatorio.';
+    }
     // Nota obligatoria para egresos
-    if (tipoActual?.sentido === 'egreso' && !nota.trim()) nextErrors.nota = 'La nota es obligatoria para egresos.';
+    if (categoriaActual?.sentido === 'egreso' && !nota.trim()) {
+      nextErrors.nota = 'La nota es obligatoria para egresos.';
+    }
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !tipoActual) return;
+    if (Object.keys(nextErrors).length > 0 || !categoriaActual || !categoriaId) return;
     
     setLoading(true);
     const payload = buildPayload(confirmarDuplicado);
@@ -157,8 +234,6 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     setLoading(false);
   };
 
-  const iconSrc = tipoActual?.icono ? `/icons/${tipoActual.icono}` : DEFAULT_ICON;
-
   return (
     <>
       {/* Header con banner - solo si no está embebido */}
@@ -180,31 +255,42 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
       
       {/* Formulario */}
       <main className={embedded ? "form-main-embedded" : "form-main"}>
-        {/* Icon preview */}
-        <div className="quick-form-icon-container">
-          <div className="quick-form-icon-wrapper">
-            <img 
-              src={iconSrc} 
-              alt="" 
-              onError={handleImageError}
-              className="quick-form-icon"
-            />
-          </div>
-        </div>
         <div className="form-fields">
-          {/* Selector de Tipo */}
+          {/* Dropdown de carga rápida (solo en modo create) */}
+          {mode === 'create' && opciones.length > 0 && (
+            <div>
+              <label className="form-label">
+                Carga rápida
+              </label>
+              <select
+                value={opcionSeleccionada}
+                onChange={(e) => handleOpcionChange(e.target.value)}
+                className="form-select"
+              >
+                <option value="">— Seleccionar opción —</option>
+                {opciones.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.nombre_display} ({o.categoria_sentido})
+                  </option>
+                ))}
+              </select>
+              <span className="form-hint">Selecciona para precargar categoría, medio y monto</span>
+            </div>
+          )}
+
+          {/* Selector de Categoría */}
           <div>
             <label className="form-label">
-              Tipo de movimiento<span className="form-label-required">*</span>
+              Categoría<span className="form-label-required">*</span>
             </label>
             <select
-              value={tipoId ?? ''}
-              onChange={(e) => setTipoId(e.target.value)}
+              value={categoriaId ?? ''}
+              onChange={(e) => setCategoriaId(e.target.value)}
               className="form-select"
             >
-              {tipos.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.nombre} ({t.sentido})
+              {categorias.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre} ({c.sentido})
                 </option>
               ))}
             </select>
@@ -269,27 +355,29 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
             {errors.medio_pago && <span className="form-error">{errors.medio_pago}</span>}
           </div>
 
-          {/* Nombre del cliente */}
-          <div>
-            <label className="form-label">
-              Nombre del cliente {tipoActual?.es_plan ? <span className="form-label-required">*</span> : ''}
+          {/* Nombre del cliente (solo si es plan) */}
+          {categoriaActual?.es_plan && (
+            <div>
+              <label className="form-label">
+                Nombre del cliente<span className="form-label-required">*</span>
               </label>
-            <input
-              value={nombreCliente}
-              onChange={(e) => {
-                setNombreCliente(e.target.value);
-                setErrors((prev) => ({ ...prev, nombre_cliente: undefined }));
-              }}
-              className="form-input"
-              placeholder="Nombre y apellido del cliente"
-            />
-            {errors.nombre_cliente && <span className="form-error">{errors.nombre_cliente}</span>}
-          </div>
+              <input
+                value={nombreCliente}
+                onChange={(e) => {
+                  setNombreCliente(e.target.value);
+                  setErrors((prev) => ({ ...prev, nombre_cliente: undefined }));
+                }}
+                className="form-input"
+                placeholder="Nombre y apellido del cliente"
+              />
+              {errors.nombre_cliente && <span className="form-error">{errors.nombre_cliente}</span>}
+            </div>
+          )}
 
           {/* Nota */}
           <div>
             <label className="form-label">
-              Nota{tipoActual?.sentido === 'egreso' && <span className="form-label-required">*</span>}
+              Nota{categoriaActual?.sentido === 'egreso' && <span className="form-label-required">*</span>}
             </label>
             <input
               value={nota}
@@ -298,7 +386,7 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
                 setErrors((prev) => ({ ...prev, nota: undefined }));
               }}
               className="form-input"
-              placeholder={tipoActual?.sentido === 'egreso' ? 'Descripción del egreso (obligatorio)' : 'Observaciones adicionales'}
+              placeholder={categoriaActual?.sentido === 'egreso' ? 'Descripción del egreso (obligatorio)' : 'Observaciones adicionales'}
             />
             {errors.nota && <span className="form-error">{errors.nota}</span>}
           </div>
@@ -331,7 +419,7 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
             </div>
             <h3 className="modal-title">Posible movimiento duplicado</h3>
             <p className="modal-message">
-              Ya existe un movimiento con el mismo tipo, monto, fecha y cliente.
+              Ya existe un movimiento con la misma categoría, monto, fecha y cliente.
               <br />
               ¿Deseas registrarlo de todas formas?
             </p>
@@ -355,5 +443,3 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     </>
   );
 }
-
-

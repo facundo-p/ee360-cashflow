@@ -4,15 +4,18 @@
 import { listOpcionesEnriquecidas, OpcionEnriquecida } from './opciones';
 
 // Legacy type used by Botonera and FormMovimiento
-export type TipoMovimiento = {
+export type OpcionMovimiento = {
   id: string;
-  nombre: string;
-  sentido: 'ingreso' | 'egreso';
+  categoria_id: string;
+  medio_pago_id: string;
+  nombre_display: string;
   icono: string;
   monto_sugerido: number | null;
-  medio_pago_id: string;
-  es_plan: boolean;
   activo: boolean;
+  orden: number;
+  fecha_actualizacion_precio: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 // Enriched opcion type from backend
@@ -21,21 +24,24 @@ type OpcionEnriquecidaWithEsPlan = OpcionEnriquecida & {
 };
 
 // Transform enriched opcion to legacy tipo format
-function opcionToTipo(opcion: OpcionEnriquecidaWithEsPlan): TipoMovimiento {
+function opcionToTipo(opcion: OpcionEnriquecidaWithEsPlan): OpcionMovimiento {
   return {
     id: opcion.id,
-    nombre: opcion.nombre_display,
-    sentido: opcion.categoria_sentido,
+    categoria_id: opcion.categoria_id,
+    medio_pago_id: opcion.medio_pago_id,
+    nombre_display: opcion.nombre_display,
     icono: opcion.icono,
     monto_sugerido: opcion.monto_sugerido,
-    medio_pago_id: opcion.medio_pago_id,
-    es_plan: opcion.es_plan ?? false,
     activo: opcion.activo,
+    orden: opcion.orden,
+    fecha_actualizacion_precio: opcion.fecha_actualizacion_precio,
+    created_at: opcion.created_at,
+    updated_at: opcion.updated_at,
   };
 }
 
 // List all tipos (active opciones transformed to legacy format)
-export async function listTipos(): Promise<TipoMovimiento[]> {
+export async function listOpciones(): Promise<OpcionMovimiento[]> {
   const opciones = await listOpcionesEnriquecidas(true); // solo activas
   
   // We need to get es_plan from categorias - the backend enriches with categoria_sentido but not es_plan
@@ -57,7 +63,7 @@ export async function listTipos(): Promise<TipoMovimiento[]> {
 }
 
 // Get single tipo by ID
-export async function getTipo(id: string): Promise<TipoMovimiento | null> {
-  const tipos = await listTipos();
+export async function getTipo(id: string): Promise<OpcionMovimiento | null> {
+  const tipos = await listOpciones();
   return tipos.find(t => t.id === id) ?? null;
 }

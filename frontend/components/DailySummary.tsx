@@ -39,12 +39,12 @@ export default function DailySummary({ compact = false, refreshKey = 0 }: Props)
     };
   }, [movsHoy]);
 
-  // Count movements by opcion (using enriched data)
+  // Count movements by categoria (using enriched data)
   const movsPorTipo = useMemo(() => {
     const counts: Record<string, { nombre: string; sentido: string; cantidad: number }> = {};
     movsHoy.forEach((m) => {
-      const key = m.opcion_id ?? m.tipo_movimiento_id ?? 'unknown';
-      const nombre = m.opcion_nombre ?? 'Desconocido';
+      const key = m.categoria_movimiento_id ?? 'unknown';
+      const nombre = m.categoria_nombre ?? 'Desconocido';
       const sentido = getSentido(m);
       if (!counts[key]) {
         counts[key] = { nombre, sentido, cantidad: 0 };

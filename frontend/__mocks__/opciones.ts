@@ -1,5 +1,7 @@
 // Opciones de movimiento: combinación de Categoría + Medio de Pago + Monto sugerido
 // IDs compatibles con el modelo anterior (tipo_movimiento_id en movimientos)
+
+// Types matching backend DTOs
 export type OpcionMovimiento = {
   id: string;
   categoria_id: string;
@@ -9,7 +11,9 @@ export type OpcionMovimiento = {
   monto_sugerido: number | null;
   activo: boolean;
   orden: number;
-  fecha_actualizacion: string;
+  fecha_actualizacion_precio: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export const opcionesSeed: OpcionMovimiento[] = [
@@ -22,7 +26,9 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 10000,
     activo: true,
     orden: 1,
-    fecha_actualizacion: '2024-01-01',
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
   },
   {
     id: 't-plan-efectivo',
@@ -33,7 +39,9 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 70000,
     activo: true,
     orden: 2,
-    fecha_actualizacion: '2024-01-01',
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
   },
   {
     id: 't-plan-transferencia',
@@ -44,7 +52,9 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 80000,
     activo: true,
     orden: 3,
-    fecha_actualizacion: '2024-01-01',
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
   },
   {
     id: 't-plan-semestral-efectivo',
@@ -55,7 +65,9 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 350000,
     activo: true,
     orden: 4,
-    fecha_actualizacion: '2024-01-01',
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
   },
   {
     id: 't-plan-semestral-tarjeta',
@@ -66,7 +78,9 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 420000,
     activo: true,
     orden: 5,
-    fecha_actualizacion: '2024-01-01',
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
   },
   {
     id: 't-plan-kids-clase',
@@ -77,8 +91,10 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 15000,
     activo: true,
     orden: 6,
-    fecha_actualizacion: '2024-01-01',
-  },
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+    },
   {
     id: 't-plan-kids-mensual',
     categoria_id: 'cat-plan-kids',
@@ -88,7 +104,9 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 40000,
     activo: true,
     orden: 7,
-    fecha_actualizacion: '2024-01-01',
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
   },
   {
     id: 't-plan-kids-mensual-2',
@@ -99,7 +117,9 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 70000,
     activo: true,
     orden: 8,
-    fecha_actualizacion: '2024-01-01',
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
   },
   {
     id: 't-bebida',
@@ -110,8 +130,10 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: 800,
     activo: true,
     orden: 9,
-    fecha_actualizacion: '2024-01-01',
-  },
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+    },
   {
     id: 't-merch',
     categoria_id: 'cat-merch',
@@ -121,8 +143,10 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: null,
     activo: true,
     orden: 10,
-    fecha_actualizacion: '2024-01-01',
-  },
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+    },
   {
     id: 't-otros-ingreso',
     categoria_id: 'cat-otros-ingreso',
@@ -132,8 +156,10 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: null,
     activo: true,
     orden: 11,
-    fecha_actualizacion: '2024-01-01',
-  },
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+    },
   {
     id: 't-otros-egreso',
     categoria_id: 'cat-otros-egreso',
@@ -143,6 +169,8 @@ export const opcionesSeed: OpcionMovimiento[] = [
     monto_sugerido: null,
     activo: true,
     orden: 12,
-    fecha_actualizacion: '2024-01-01',
-  },
+    fecha_actualizacion_precio: '2024-01-01',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+    },
 ];

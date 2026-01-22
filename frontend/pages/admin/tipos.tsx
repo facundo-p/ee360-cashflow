@@ -1,11 +1,11 @@
 // Gestión de tipos de movimiento (admin). Mock: lista y permite toggles ficticios.
 import React, { useEffect, useState } from 'react';
-import { listTipos } from '../../lib/api-mock/tipos';
+import { listOpciones } from '../../lib/api-mock/tipos';
 
 export default function AdminTiposPage() {
   const [tipos, setTipos] = useState<any[]>([]);
   useEffect(() => {
-    listTipos().then(setTipos);
+    listOpciones().then(setTipos);
   }, []);
 
   const toggleActivo = (id: string) => {
