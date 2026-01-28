@@ -26,6 +26,8 @@ type MovimientoDbRow = {
   usuario_creador_id: string;
   created_at: string;
   updated_at: string | null;
+  deleted_at: string | null;
+  deleted_by_user_id: string | null;
 };
 
 // Mapea row de BD a DTO
@@ -49,11 +51,12 @@ function mapRowToDto(row: MovimientoDbRow): MovimientoDTO {
 export const MovimientosRepo = {
   /**
    * Lista movimientos con filtros opcionales.
+   * Solo retorna movimientos no eliminados (deleted_at IS NULL)
    */
   async list(filtros?: MovimientoFiltrosDTO): Promise<MovimientoDTO[]> {
     const db = getDb();
 
-    const where: string[] = [];
+    const where: string[] = ['deleted_at IS NULL'];
     const params: any[] = [];
 
     if (filtros?.fecha_desde) {
@@ -84,7 +87,7 @@ export const MovimientosRepo = {
     const sql = `
       SELECT *
       FROM movimientos
-      ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
+      WHERE ${where.join(' AND ')}
       ORDER BY fecha DESC, created_at DESC
     `;
 
@@ -95,13 +98,14 @@ export const MovimientosRepo = {
 
   /**
    * Lista movimientos con datos enriquecidos.
+   * Solo retorna movimientos no eliminados (deleted_at IS NULL)
    */
   async listEnriquecidos(
     filtros?: MovimientoFiltrosDTO
   ): Promise<MovimientoEnriquecidoDTO[]> {
     const db = getDb();
 
-    const where: string[] = [];
+    const where: string[] = ['m.deleted_at IS NULL'];
     const params: any[] = [];
 
     if (filtros?.fecha_desde) {
@@ -150,7 +154,7 @@ export const MovimientosRepo = {
       JOIN categorias_movimiento c ON c.id = m.categoria_movimiento_id
       JOIN medios_pago mp ON mp.id = m.medio_pago_id
       JOIN usuarios u ON u.id = m.usuario_creador_id
-      ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
+      WHERE ${where.join(' AND ')}
       ORDER BY m.fecha DESC, m.created_at DESC
     `;
 
@@ -166,7 +170,7 @@ export const MovimientosRepo = {
   },
 
   /**
-   * Busca un movimiento por ID.
+   * Busca un movimiento por ID (incluyendo eliminados para auditoría).
    */
   async findById(id: string): Promise<MovimientoDTO | null> {
     const db = getDb();
@@ -181,7 +185,23 @@ export const MovimientosRepo = {
   },
 
   /**
+   * Busca un movimiento activo por ID (excluye eliminados).
+   */
+  async findActiveById(id: string): Promise<MovimientoDTO | null> {
+    const db = getDb();
+
+    const row = db
+      .prepare(`SELECT * FROM movimientos WHERE id = ? AND deleted_at IS NULL`)
+      .get(id) as MovimientoDbRow | undefined;
+
+    if (!row) return null;
+
+    return mapRowToDto(row);
+  },
+
+  /**
    * Busca un movimiento por ID con datos enriquecidos.
+   * Solo retorna si no está eliminado.
    */
   async findByIdEnriquecido(
     id: string
@@ -211,7 +231,7 @@ export const MovimientosRepo = {
         JOIN categorias_movimiento c ON c.id = m.categoria_movimiento_id
         JOIN medios_pago mp ON mp.id = m.medio_pago_id
         JOIN usuarios u ON u.id = m.usuario_creador_id
-        WHERE m.id = ?
+        WHERE m.id = ? AND m.deleted_at IS NULL
       `
       )
       .get(id) as
@@ -228,7 +248,7 @@ export const MovimientosRepo = {
   },
 
   /**
-   * Busca posibles duplicados.
+   * Busca posibles duplicados (solo entre movimientos activos).
    */
   async findDuplicado(params: {
     categoria_movimiento_id: string;
@@ -249,6 +269,7 @@ export const MovimientosRepo = {
           AND monto = ?
           AND fecha = ?
           AND IFNULL(nombre_cliente, '') = IFNULL(?, '')
+          AND deleted_at IS NULL
         LIMIT 1
       `
       )
@@ -350,7 +371,7 @@ export const MovimientosRepo = {
         `
         UPDATE movimientos
         SET ${fields.join(', ')}
-        WHERE id = ?
+        WHERE id = ? AND deleted_at IS NULL
       `
       )
       .run(...values, id);
@@ -361,7 +382,26 @@ export const MovimientosRepo = {
   },
 
   /**
-   * Cuenta movimientos por categoría (reemplaza countByOpcion).
+   * Soft delete: marca un movimiento como eliminado.
+   */
+  async softDelete(id: string, deletedByUserId: string): Promise<boolean> {
+    const db = getDb();
+
+    const result = db
+      .prepare(
+        `
+        UPDATE movimientos
+        SET deleted_at = datetime('now'), deleted_by_user_id = ?
+        WHERE id = ? AND deleted_at IS NULL
+      `
+      )
+      .run(deletedByUserId, id);
+
+    return result.changes > 0;
+  },
+
+  /**
+   * Cuenta movimientos activos por categoría.
    */
   async countByCategoria(categoriaId: string): Promise<number> {
     const db = getDb();
@@ -371,7 +411,7 @@ export const MovimientosRepo = {
         `
         SELECT COUNT(*) as count
         FROM movimientos
-        WHERE categoria_movimiento_id = ?
+        WHERE categoria_movimiento_id = ? AND deleted_at IS NULL
       `
       )
       .get(categoriaId) as { count: number };

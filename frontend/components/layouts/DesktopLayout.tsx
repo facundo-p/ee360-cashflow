@@ -1,7 +1,9 @@
-// DesktopLayout: layout de escritorio con sidebar de navegación unificado
+// DesktopLayout: layout de escritorio con sidebar y header
+// Según AUTH_AND_USERS.md sección 4.2: ícono de usuario en esquina superior derecha
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useSessionMock } from '../../hooks/useSessionMock';
+import { useAuth } from '../../contexts/AuthContext';
+import UserMenu from '../UserMenu';
 
 type NavItem = {
   id: string;
@@ -47,6 +49,7 @@ const navItems: NavItem[] = [
       { id: 'admin-categorias', label: 'Categorías', path: '/admin/categorias' },
       { id: 'admin-medios', label: 'Medios de Pago', path: '/admin/medios' },
       { id: 'admin-opciones', label: 'Opciones', path: '/admin/opciones' },
+      { id: 'admin-usuarios', label: 'Usuarios', path: '/admin/usuarios' },
     ],
   },
 ];
@@ -58,8 +61,7 @@ type Props = {
 export default function DesktopLayout({ children }: Props) {
   const router = useRouter();
   const currentPath = router.pathname;
-  const { user } = useSessionMock();
-  const isAdmin = user?.rol === 'admin';
+  const { user, isAdmin, isAuthenticated } = useAuth();
   
   // Auto-expand admin if on admin route
   const [adminExpanded, setAdminExpanded] = useState(currentPath.startsWith('/admin'));
@@ -69,15 +71,11 @@ export default function DesktopLayout({ children }: Props) {
 
   const handleNavClick = (item: NavItem) => {
     if (item.children) {
-      // Toggle expansion for items with children
-      setAdminExpanded(!adminExpanded);
-      // Navigate to first child if not already in admin section
-      if (!currentPath.startsWith('/admin')) {
-        router.push(item.children[0].path);
-      }
-    } else {
-      router.push(item.path);
+      setAdminExpanded((prev) => !prev);
+      return;
     }
+  
+    router.push(item.path);
   };
 
   const isItemActive = (item: NavItem) => {
@@ -143,19 +141,24 @@ export default function DesktopLayout({ children }: Props) {
         </nav>
 
         <div className="desktop-sidebar-footer">
-          {user && (
-            <span className="desktop-user-info">
-              {user.nombre} ({user.rol})
-            </span>
-          )}
           <span className="desktop-version">v1.0.0</span>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="desktop-main">
-        {children}
-      </main>
+      <div className="desktop-main-wrapper">
+        {/* Header with UserMenu */}
+        {isAuthenticated && (
+          <header className="desktop-header">
+            <div className="flex-1" />
+            <UserMenu variant="desktop" />
+          </header>
+        )}
+        
+        <main className="desktop-main">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

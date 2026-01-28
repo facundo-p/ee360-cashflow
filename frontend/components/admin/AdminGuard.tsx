@@ -1,7 +1,8 @@
-// AdminGuard: protege rutas admin, redirige si no es admin
-import React, { useEffect, useState } from 'react';
+// AdminGuard: protege rutas admin según AUTH_AND_USERS.md
+// Redirige si no es admin o si está en mobile
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSessionMock } from '../../hooks/useSessionMock';
+import { useAuth } from '../../contexts/AuthContext';
 import { useIsDesktop } from '../../hooks/useMediaQuery';
 
 type Props = {
@@ -9,36 +10,31 @@ type Props = {
 };
 
 export default function AdminGuard({ children }: Props) {
-  const { user } = useSessionMock();
+  const { user, isLoading, isAdmin } = useAuth();
   const router = useRouter();
   const isDesktop = useIsDesktop();
-  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Wait for hydration
-    const timer = setTimeout(() => {
-      setIsChecking(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (isChecking) return;
+    if (isLoading) return;
+    if (!user) return;            // ⬅️ esperar
+    if (isAdmin === undefined) return;
+    if (isDesktop === undefined) return;
     
-    // Redirect if not admin
-    if (!user || user.rol !== 'admin') {
+    // Redirect if not authenticated or not admin
+    if (!user || !isAdmin) {
       router.replace('/home');
       return;
     }
     
-    // Redirect to home if on mobile (admin only available on desktop)
+    // Admin only available on desktop
     if (!isDesktop) {
       router.replace('/home');
       return;
     }
-  }, [user, isDesktop, router, isChecking]);
+  }, [user, isAdmin, isDesktop, router, isLoading]);
 
-  if (isChecking) {
+  // Loading state
+  if (isLoading || isDesktop === undefined || isAdmin === undefined) {
     return (
       <div className="admin-loading">
         <p>Verificando acceso...</p>
@@ -46,7 +42,8 @@ export default function AdminGuard({ children }: Props) {
     );
   }
 
-  if (!user || user.rol !== 'admin' || !isDesktop) {
+  // Not authorized
+  if (!user || !isAdmin || !isDesktop) {
     return null;
   }
 

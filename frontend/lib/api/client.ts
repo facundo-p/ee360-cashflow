@@ -3,24 +3,23 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
-// Token storage (in a real app, consider httpOnly cookies)
-let authToken: string | null = null;
+// Token key in localStorage (must match AuthContext)
+const TOKEN_KEY = 'auth_token';
 
+// Set token in localStorage (used by lib/api/auth.ts for standalone login)
 export const setAuthToken = (token: string | null) => {
-  authToken = token;
+  if (typeof window === 'undefined') return;
   if (token) {
-    localStorage.setItem('auth_token', token);
+    localStorage.setItem(TOKEN_KEY, token);
   } else {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem(TOKEN_KEY);
   }
 };
 
+// Get token from localStorage - ALWAYS read fresh to support login/logout cycles
 export const getAuthToken = (): string | null => {
-  if (authToken) return authToken;
-  if (typeof window !== 'undefined') {
-    authToken = localStorage.getItem('auth_token');
-  }
-  return authToken;
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(TOKEN_KEY);
 };
 
 // API Error class
@@ -57,7 +56,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   if (!skipAuth) {
     const token = getAuthToken();
     if (token) {
-      requestHeaders['Authorization'] = `Bearer ${token}`;
+      requestHeaders['Authorization'] = `Bearer ${getAuthToken()}`;
     }
   }
   

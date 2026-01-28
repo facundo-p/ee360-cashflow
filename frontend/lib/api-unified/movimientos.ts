@@ -78,3 +78,21 @@ export async function updateMovimiento(id: string, updates: Parameters<typeof im
   const api = await getRealApi();
   return api.updateMovimiento(id, updates);
 }
+
+export async function puedeEliminarMovimiento(id: string): Promise<{ permitido: boolean; razon?: string }> {
+  if (USE_MOCK_API) {
+    // Mock: siempre permitido (admin mock)
+    return { permitido: true };
+  }
+  const api = await getRealApi();
+  return api.puedeEliminarMovimiento(id);
+}
+
+export async function deleteMovimiento(id: string): Promise<void> {
+  if (USE_MOCK_API) {
+    // Mock no soporta eliminación
+    throw new Error('Mock API no soporta eliminación de movimientos');
+  }
+  const api = await getRealApi();
+  return api.deleteMovimiento(id);
+}

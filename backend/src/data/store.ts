@@ -278,8 +278,8 @@ const opcionesSeed: OpcionMovimientoDTO[] = [
 ];
 
 const usuariosSeed: UsuarioDTO[] = [
-  { id: 'u-admin', nombre: 'Admin Demo', email: 'admin@gym.test', rol: 'admin', estado: 'activo' },
-  { id: 'u-user', nombre: 'Coach Demo', email: 'coach@gym.test', rol: 'usuario', estado: 'activo' },
+  { id: 'u-admin', nombre: 'Admin Demo', username: 'admin@gym.test', rol: 'admin', activo: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 'u-user', nombre: 'Coach Demo', username: 'coach@gym.test', rol: 'coach', activo: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
 ];
 
 const movimientosSeed: MovimientoDTO[] = [
@@ -524,8 +524,8 @@ export const Store = {
       return store.usuarios.find(u => u.id === id) ?? null;
     },
     
-    findByEmail: (email: string): UsuarioDTO | null => {
-      return store.usuarios.find(u => u.email.toLowerCase() === email.toLowerCase()) ?? null;
+    findByUsername: (username: string): UsuarioDTO | null => {
+      return store.usuarios.find(u => u.username.toLowerCase().trim() === username.toLowerCase().trim()) ?? null;
     },
   },
 

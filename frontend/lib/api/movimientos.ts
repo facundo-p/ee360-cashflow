@@ -22,6 +22,9 @@ export type MovimientoEnriquecido = Movimiento & {
   medio_pago_nombre: string;
   created_by_nombre: string;
   updated_by_nombre: string | null;
+  // Permisos del usuario actual
+  can_edit: boolean;
+  can_delete: boolean;
 };
 
 export type MovimientoCreateInput = {
@@ -96,6 +99,16 @@ export async function updateMovimiento(id: string, updates: MovimientoUpdateInpu
 // Check if user can edit movimiento
 export async function puedeEditarMovimiento(id: string): Promise<{ permitido: boolean; razon?: string }> {
   return api.get<{ permitido: boolean; razon?: string }>(`/movimientos/${id}/puede-editar`);
+}
+
+// Check if user can delete movimiento
+export async function puedeEliminarMovimiento(id: string): Promise<{ permitido: boolean; razon?: string }> {
+  return api.get<{ permitido: boolean; razon?: string }>(`/movimientos/${id}/puede-eliminar`);
+}
+
+// Delete movimiento (soft delete)
+export async function deleteMovimiento(id: string): Promise<void> {
+  await api.delete(`/movimientos/${id}`);
 }
 
 // Get audit history for movimiento

@@ -5,7 +5,7 @@ import { getDb } from './sqlite';
 
 async function runSqlSeeds() {
   const db = getDb();
-  const dir = path.resolve(process.cwd(), 'persistence', 'seeds', 'sql');
+  const dir = path.resolve(process.cwd(), 'backend', 'persistence', 'seeds', 'sql');
 
   if (!fs.existsSync(dir)) return;
 
@@ -19,7 +19,7 @@ async function runSqlSeeds() {
 }
 
 async function runTsSeeds() {
-  const dir = path.resolve(process.cwd(), 'persistence', 'seeds', 'ts');
+  const dir = path.resolve(process.cwd(), 'backend', 'persistence', 'seeds', 'ts');
 
   if (!fs.existsSync(dir)) return;
 

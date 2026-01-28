@@ -6,7 +6,7 @@ import { listMedios } from '../lib/api-unified/medios';
 import { listOpcionesEnriquecidas, type OpcionEnriquecida } from '../lib/api-unified/opciones';
 import { createMovimiento, updateMovimiento, getMovimiento } from '../lib/api-unified/movimientos';
 import { useFocusRules } from '../hooks/useFocusRules';
-import { useSessionMock } from '../hooks/useSessionMock';
+import { useAuth } from '../contexts/AuthContext';
 import Toast from './Toast';
 
 type Categoria = {
@@ -33,7 +33,7 @@ type Props = {
 
 export default function FormMovimiento({ mode, movimientoId, embedded = false, onSuccess }: Props) {
   const router = useRouter();
-  const { user } = useSessionMock();
+  const { user } = useAuth();
   
   // Datos maestros
   const [categorias, setCategorias] = useState<Categoria[]>([]);

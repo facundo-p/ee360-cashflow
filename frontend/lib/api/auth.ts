@@ -1,16 +1,21 @@
-// API calls for Authentication
+// API calls for Authentication según AUTH_AND_USERS.md
 import api, { setAuthToken, getAuthToken } from './client';
+
+// Tipos según AUTH_AND_USERS.md
+export type Rol = 'admin' | 'coach';
 
 export type Usuario = {
   id: string;
   nombre: string;
-  email: string;
-  rol: 'admin' | 'usuario';
-  estado: 'activo' | 'inactivo';
+  username: string;
+  rol: Rol;
+  activo: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type LoginInput = {
-  email: string;
+  username: string;
   password: string;
 };
 

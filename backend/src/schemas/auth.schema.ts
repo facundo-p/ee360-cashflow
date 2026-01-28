@@ -1,10 +1,10 @@
-// JSON Schemas for Auth endpoints
+// JSON Schemas for Auth endpoints según AUTH_AND_USERS.md
 
 export const loginSchema = {
   type: 'object',
-  required: ['email', 'password'],
+  required: ['username', 'password'],
   properties: {
-    email: { type: 'string', format: 'email' },
+    username: { type: 'string', minLength: 1 },
     password: { type: 'string', minLength: 1 },
   },
   additionalProperties: false,

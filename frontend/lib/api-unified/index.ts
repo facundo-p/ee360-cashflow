@@ -15,6 +15,7 @@ export * from './categorias';
 export * from './medios';
 export * from './opciones';
 export * from './auth';
+export * from './usuarios';
 
 // Export the configuration flag
 export { USE_MOCK_API as isUsingMockApi };

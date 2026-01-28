@@ -1,4 +1,4 @@
-// Unified Auth API
+// Unified Auth API según AUTH_AND_USERS.md
 // Switches between mock and real implementation based on config
 
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
@@ -6,6 +6,7 @@ const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 // Import types from the real API
 export type { 
   Usuario, 
+  Rol,
   LoginInput,
   LoginResult
 } from '../api/auth';
@@ -28,10 +29,10 @@ async function getRealApi() {
   return realApi;
 }
 
-export async function login(credentials: { email: string; password: string }) {
+export async function login(credentials: { username: string; password: string }) {
   if (USE_MOCK_API) {
     const api = await getMockApi();
-    const result = await api.login(credentials.email, credentials.password);
+    const result = await api.login(credentials.username, credentials.password);
     if (!result) {
       throw new Error('Invalid credentials');
     }
@@ -41,9 +42,11 @@ export async function login(credentials: { email: string; password: string }) {
       user: {
         id: result.user.id,
         nombre: result.user.nombre,
-        email: result.user.email,
-        rol: result.user.rol as 'admin' | 'usuario',
-        estado: 'activo' as const,
+        username: result.user.email, // mock uses email as username
+        rol: result.user.rol as 'admin' | 'coach',
+        activo: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
     };
   }
@@ -71,9 +74,11 @@ export async function getCurrentUser() {
     return {
       id: user.id,
       nombre: user.nombre,
-      email: user.email,
-      rol: user.rol as 'admin' | 'usuario',
-      estado: 'activo' as const,
+      username: user.email, // mock uses email
+      rol: user.rol as 'admin' | 'coach',
+      activo: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
   }
   const api = await getRealApi();

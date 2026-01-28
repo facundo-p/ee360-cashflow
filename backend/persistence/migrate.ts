@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { getDb } from './sqlite';
 
-const MIGRATIONS_DIR = path.resolve(process.cwd(), 'persistence', 'migrations');
+const MIGRATIONS_DIR = path.resolve(process.cwd(), 'backend', 'persistence', 'migrations');
 
 export function runMigrations() {
   const db = getDb();

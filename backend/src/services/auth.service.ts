@@ -1,7 +1,8 @@
-// Lógica de negocio de autenticación.
+// Lógica de negocio de autenticación según AUTH_AND_USERS.md
 
+import bcrypt from 'bcrypt';
 import { UsuariosRepo } from '../repositories/usuarios.repo';
-import { signToken, verifyToken } from '../auth/jwt';
+import { signToken, verifyToken, TokenPayload } from '../auth/jwt';
 import { UsuarioDTO } from '../dto/usuarios.dto';
 import { LoginRequest, LoginResponse } from '../dto/auth.dto';
 
@@ -16,22 +17,17 @@ export class AuthError extends Error {
   }
 }
 
-// Payload del token JWT
-export type TokenPayload = {
-  userId: string;
-  email: string;
-  rol: 'admin' | 'usuario';
-};
-
 export const AuthService = {
   /**
-   * Autentica un usuario con email y password.
+   * Autentica un usuario con username y password.
+   * Retorna token JWT y datos del usuario.
    */
-  login: async (credentials: LoginRequest): Promise<LoginResponse & { user: UsuarioDTO }> => {
-    // Verificar credenciales
-    const usuario = await UsuariosRepo.verifyCredentials(
-      credentials.email, 
-      credentials.password
+  login: async (
+    credentials: LoginRequest
+  ): Promise<LoginResponse & { user: UsuarioDTO }> => {
+    // Buscar usuario por username (incluye password_hash)
+    const usuario = await UsuariosRepo.findByUsernameWithHash(
+      credentials.username
     );
 
     if (!usuario) {
@@ -39,26 +35,38 @@ export const AuthService = {
     }
 
     // Verificar que el usuario esté activo
-    if (usuario.estado !== 'activo') {
+    if (!usuario.activo) {
       throw new AuthError('Usuario inactivo', 'USER_INACTIVE');
     }
 
-    // Generar token
+    // Verificar password con bcrypt
+    const passwordValid = await bcrypt.compare(
+      credentials.password,
+      usuario.password_hash
+    );
+
+    if (!passwordValid) {
+      throw new AuthError('Credenciales inválidas', 'INVALID_CREDENTIALS');
+    }
+
+    // Generar token JWT (solo userId y rol según AUTH_AND_USERS.md)
     const tokenPayload: TokenPayload = {
       userId: usuario.id,
-      email: usuario.email,
       rol: usuario.rol,
     };
     const token = signToken(tokenPayload);
 
-    return { token, user: usuario };
+    // Retornar sin password_hash
+    const { password_hash, ...userWithoutHash } = usuario;
+    return { token, user: userWithoutHash };
   },
 
   /**
    * Verifica un token y retorna el usuario.
+   * Valida: token válido, usuario existe, usuario activo.
    */
   verifyToken: async (token: string): Promise<UsuarioDTO> => {
-    const payload = verifyToken<TokenPayload>(token);
+    const payload = verifyToken(token);
     if (!payload) {
       throw new AuthError('Token inválido', 'INVALID_TOKEN');
     }
@@ -68,7 +76,7 @@ export const AuthService = {
       throw new AuthError('Usuario no encontrado', 'INVALID_TOKEN');
     }
 
-    if (usuario.estado !== 'activo') {
+    if (!usuario.activo) {
       throw new AuthError('Usuario inactivo', 'USER_INACTIVE');
     }
 
@@ -77,6 +85,7 @@ export const AuthService = {
 
   /**
    * Obtiene el usuario actual a partir del token.
+   * Endpoint: GET /api/auth/me
    */
   me: async (token: string): Promise<UsuarioDTO> => {
     return AuthService.verifyToken(token);

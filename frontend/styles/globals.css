@@ -317,6 +317,14 @@
   border: 1px solid var(--color-gold);
 }
 
+.date-input-empty {
+  color: transparent;
+}
+
+.date-input-empty:focus {
+  color: transparent;
+}
+
 .list-btn-export {
   @apply px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide transition-all;
   color: var(--color-gold-light);
@@ -579,6 +587,10 @@
   color: #f87171;
 }
 
+.legacy-card-detail-right {
+  margin-left: auto;
+}
+
 .legacy-empty {
   @apply text-sm;
   color: var(--color-text-gray);
@@ -744,6 +756,16 @@
 .desktop-version {
   @apply text-xs;
   color: var(--color-text-gray);
+}
+
+.desktop-main-wrapper {
+  @apply flex-1 flex flex-col overflow-hidden;
+}
+
+.desktop-header {
+  @apply shrink-0 h-14 px-6 flex items-center justify-end;
+  background-color: var(--color-bg-header);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.2);
 }
 
 .desktop-main {

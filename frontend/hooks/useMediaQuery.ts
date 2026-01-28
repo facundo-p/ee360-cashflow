@@ -8,26 +8,21 @@ export const BREAKPOINTS = {
   xl: 1280,
 } as const;
 
-export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+export function useMediaQuery(query: string): boolean | undefined {
+  const [matches, setMatches] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const media = window.matchMedia(query);
-    
-    // Set initial value
     setMatches(media.matches);
 
-    // Create listener
     const listener = (e: MediaQueryListEvent) => {
       setMatches(e.matches);
     };
 
-    // Add listener
     media.addEventListener('change', listener);
-
-    return () => {
-      media.removeEventListener('change', listener);
-    };
+    return () => media.removeEventListener('change', listener);
   }, [query]);
 
   return matches;

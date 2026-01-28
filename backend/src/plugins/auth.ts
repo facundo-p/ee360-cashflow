@@ -1,5 +1,5 @@
-// Auth plugin for Fastify
-// Provides mock authentication and authorization hooks
+// Auth plugin for Fastify según AUTH_AND_USERS.md
+// Middleware JWT: valida token, inyecta usuario, bloquea sin token
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fp from 'fastify-plugin';
@@ -7,14 +7,29 @@ import { verifyToken } from '../auth/jwt';
 import { UsuariosRepo } from '../repositories/usuarios.repo';
 import { UsuarioDTO } from '../dto/usuarios.dto';
 
-// Token payload type
-type TokenPayload = {
-  userId: string;
-  email: string;
-  rol: 'admin' | 'usuario';
+/**
+ * MOCK_AUTH: Solo para desarrollo local.
+ * - Si MOCK_AUTH=true (o no definido en dev): permite requests sin token usando usuario mock
+ * - Si MOCK_AUTH=false: requiere token real (modo producción)
+ * - En NODE_ENV=production: siempre requiere token real
+ */
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const USE_MOCK_AUTH = !IS_PRODUCTION && process.env.MOCK_AUTH !== 'false';
+
+// Usuario mock para desarrollo (solo cuando USE_MOCK_AUTH=true)
+const MOCK_USER: UsuarioDTO = {
+  id: 'usr_admin_demo',
+  nombre: 'Admin Demo',
+  username: 'admin@demo.test',
+  rol: 'admin',
+  activo: true,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
 };
 
-// Extract Bearer token from Authorization header
+/**
+ * Extrae el Bearer token del header Authorization
+ */
 function extractToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization;
   if (!auth?.startsWith('Bearer ')) {
@@ -23,20 +38,14 @@ function extractToken(request: FastifyRequest): string | null {
   return auth.substring(7);
 }
 
-// MOCK: For development, return a mock user if no token
-// In production, this should be removed
-const MOCK_USER: UsuarioDTO = {
-  id: 'u_admin_demo',
-  nombre: 'Admin Demo',
-  email: 'admin@gym.test',
-  rol: 'admin', // Change to 'usuario' to test non-admin flows
-  estado: 'activo',
-};
-
-const USE_MOCK_AUTH = process.env.MOCK_AUTH !== 'false';
-
 /**
- * Authentication hook - validates token and attaches user to request
+ * Middleware de autenticación JWT
+ * Según AUTH_AND_USERS.md sección 1 y 3:
+ * - Valida token JWT válido
+ * - Verifica que el usuario exista
+ * - Verifica que el usuario esté activo
+ * - Inyecta usuario autenticado en request.user
+ * - Bloquea requests sin token (excepto en modo mock para desarrollo)
  */
 export async function authenticate(
   request: FastifyRequest,
@@ -44,29 +53,32 @@ export async function authenticate(
 ): Promise<void> {
   const token = extractToken(request);
 
-  // MOCK MODE: Use mock user if no token and mock auth is enabled
-  if (!token && USE_MOCK_AUTH) {
-    request.user = MOCK_USER;
-    request.log.debug('Using mock user for authentication');
-    return;
-  }
-
+  // Sin token
   if (!token) {
+    // Modo desarrollo con mock habilitado
+    if (USE_MOCK_AUTH) {
+      request.user = MOCK_USER;
+      request.log.debug('MOCK_AUTH: Using mock user (admin)');
+      return;
+    }
+
+    // Producción o mock deshabilitado: bloquear
     return reply.status(401).send({
       error: 'Token no proporcionado',
       code: 'NO_TOKEN',
     });
   }
 
-  const payload = verifyToken<TokenPayload>(token);
+  // Validar JWT
+  const payload = verifyToken(token);
   if (!payload) {
     return reply.status(401).send({
-      error: 'Token inválido',
+      error: 'Token inválido o expirado',
       code: 'INVALID_TOKEN',
     });
   }
 
-  // Get user from database
+  // Buscar usuario en BD
   const usuario = await UsuariosRepo.findById(payload.userId);
   if (!usuario) {
     return reply.status(401).send({
@@ -75,18 +87,21 @@ export async function authenticate(
     });
   }
 
-  if (usuario.estado !== 'activo') {
+  // Verificar usuario activo (AUTH_AND_USERS.md sección 3.3)
+  if (!usuario.activo) {
     return reply.status(403).send({
       error: 'Usuario inactivo',
       code: 'USER_INACTIVE',
     });
   }
 
+  // Inyectar usuario autenticado en request
   request.user = usuario;
 }
 
 /**
- * Authorization hook - requires admin role
+ * Middleware de autorización: requiere rol admin
+ * Según AUTH_AND_USERS.md sección 3.2
  */
 export async function requireAdmin(
   request: FastifyRequest,
@@ -108,15 +123,21 @@ export async function requireAdmin(
 }
 
 /**
- * Auth plugin - registers decorators and hooks
+ * Plugin de autenticación para Fastify
+ * Registra decoradores necesarios
  */
 async function authPlugin(fastify: FastifyInstance): Promise<void> {
-  // Decorate request with user (typed in fastify.d.ts)
+  // Decorar request con user (tipado en fastify.d.ts)
   fastify.decorateRequest('user', null);
 
-  // Log mock auth status
-  if (USE_MOCK_AUTH) {
-    fastify.log.warn('⚠️  MOCK_AUTH enabled - using mock user for unauthenticated requests');
+  // Log del modo de autenticación
+  if (IS_PRODUCTION) {
+    fastify.log.info('🔒 Auth: Production mode - JWT required');
+  } else if (USE_MOCK_AUTH) {
+    fastify.log.warn('⚠️  Auth: MOCK_AUTH enabled - requests without token use mock admin user');
+    fastify.log.warn('    Set MOCK_AUTH=false to require real JWT tokens');
+  } else {
+    fastify.log.info('🔒 Auth: Development mode with JWT required (MOCK_AUTH=false)');
   }
 }
 

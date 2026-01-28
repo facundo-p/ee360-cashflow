@@ -26,6 +26,12 @@ export type MovimientoEnriquecidoDTO = MovimientoDTO & {
   updated_by_nombre: string | null;
 };
 
+// Vista enriquecida con permisos del usuario actual
+export type MovimientoEnriquecidoConPermisosDTO = MovimientoEnriquecidoDTO & {
+  can_edit: boolean;
+  can_delete: boolean;
+};
+
 export type MovimientoCreateDTO = {
   fecha: string;
   categoria_movimiento_id: string;

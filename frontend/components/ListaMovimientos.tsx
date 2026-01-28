@@ -37,13 +37,13 @@ export default function ListaMovimientos({ movimientos, tipos, medios }: Props) 
               <div className="legacy-card-details">
                 <span>{m.fecha}</span>
                 <span>·</span>
-                <span>{getMedioNombre(m, medio)}</span>
                 {m.nombre_cliente && (
                   <>
                     <span>·</span>
                     <span>Cliente: {m.nombre_cliente}</span>
                   </>
                 )}
+                <span className='legacy-card-detail-right'>{getMedioNombre(m, medio)}</span>
               </div>
             </Link>
           );

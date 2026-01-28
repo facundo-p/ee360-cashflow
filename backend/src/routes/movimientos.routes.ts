@@ -22,7 +22,7 @@ export default async function movimientosRoutes(fastify: FastifyInstance): Promi
   // All routes require authentication
   fastify.addHook('onRequest', authenticate);
 
-  // GET /api/movimientos - List with filters
+  // GET /api/movimientos - List with filters (includes can_edit/can_delete)
   fastify.get<{ Querystring: MovimientoFiltrosDTO }>(
     '/',
     {
@@ -37,7 +37,9 @@ export default async function movimientosRoutes(fastify: FastifyInstance): Promi
         categoria_id: request.query.categoria_id,
         medio_pago_id: request.query.medio_pago_id,
       };
-      const movimientos = await MovimientosService.list(filtros);
+      // Pass user to get can_edit/can_delete permissions
+      console.log('request.user', request.user);
+      const movimientos = await MovimientosService.list(filtros, request.user);
       return movimientos;
     }
   );
@@ -51,8 +53,15 @@ export default async function movimientosRoutes(fastify: FastifyInstance): Promi
       },
     },
     async (request: GetRequest, reply: FastifyReply) => {
-      const movimiento = await MovimientosService.get(request.params.id);
-      return movimiento;
+      try {
+        const movimiento = await MovimientosService.get(request.params.id);
+        return movimiento;
+      } catch (error) {
+        if (error instanceof MovimientoError && error.code === 'NOT_FOUND') {
+          return reply.status(404).send({ error: error.message, code: error.code });
+        }
+        throw error;
+      }
     }
   );
 
@@ -69,6 +78,23 @@ export default async function movimientosRoutes(fastify: FastifyInstance): Promi
         return reply.status(401).send({ error: 'No autenticado' });
       }
       const resultado = await MovimientosService.puedeEditar(request.params.id, request.user);
+      return resultado;
+    }
+  );
+
+  // GET /api/movimientos/:id/puede-eliminar - Check delete permissions
+  fastify.get<{ Params: { id: string } }>(
+    '/:id/puede-eliminar',
+    {
+      schema: {
+        params: movimientoParamsSchema,
+      },
+    },
+    async (request: GetRequest, reply: FastifyReply) => {
+      if (!request.user) {
+        return reply.status(401).send({ error: 'No autenticado' });
+      }
+      const resultado = await MovimientosService.puedeEliminar(request.params.id, request.user);
       return resultado;
     }
   );
@@ -126,12 +152,50 @@ export default async function movimientosRoutes(fastify: FastifyInstance): Promi
         return reply.status(401).send({ error: 'No autenticado' });
       }
 
-      const movimiento = await MovimientosService.update(
-        request.params.id,
-        request.body,
-        request.user
-      );
-      return movimiento;
+      try {
+        const movimiento = await MovimientosService.update(
+          request.params.id,
+          request.body,
+          request.user
+        );
+        return movimiento;
+      } catch (error) {
+        if (error instanceof MovimientoError) {
+          const statusCode = 
+            error.code === 'NOT_FOUND' ? 404 :
+            error.code === 'PERMISSION_DENIED' || error.code === 'EDIT_WINDOW_EXPIRED' ? 403 : 400;
+          return reply.status(statusCode).send({ error: error.message, code: error.code });
+        }
+        throw error;
+      }
+    }
+  );
+
+  // DELETE /api/movimientos/:id - Soft delete
+  fastify.delete<{ Params: { id: string } }>(
+    '/:id',
+    {
+      schema: {
+        params: movimientoParamsSchema,
+      },
+    },
+    async (request: GetRequest, reply: FastifyReply) => {
+      if (!request.user) {
+        return reply.status(401).send({ error: 'No autenticado' });
+      }
+
+      try {
+        await MovimientosService.delete(request.params.id, request.user);
+        return reply.status(204).send();
+      } catch (error) {
+        if (error instanceof MovimientoError) {
+          const statusCode = 
+            error.code === 'NOT_FOUND' ? 404 :
+            error.code === 'PERMISSION_DENIED' || error.code === 'DELETE_WINDOW_EXPIRED' ? 403 : 400;
+          return reply.status(statusCode).send({ error: error.message, code: error.code });
+        }
+        throw error;
+      }
     }
   );
 }

@@ -8,21 +8,25 @@
     "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\"",
     "lint": "echo \"Run eslint\"",
     "format": "echo \"Run prettier\"",
-    "db:migrate": "ts-node --project backend/tsconfig.json persistence/migrate.ts",
-    "db:seed": "ts-node --project backend/tsconfig.json persistence/seed.ts",
-    "db:init": "ts-node --project backend/tsconfig.json persistence/init.ts"
+    "db:migrate": "ts-node --project backend/tsconfig.json backend/persistence/migrate.ts",
+    "db:seed": "ts-node --project backend/tsconfig.json backend/persistence/seed.ts",
+    "db:init": "ts-node --project backend/tsconfig.json backend/persistence/init.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.6.0",
     "fastify": "^5.2.1",
     "fastify-plugin": "^5.0.1",
+    "jsonwebtoken": "^9.0.3",
     "next": "^16.0.10",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.9",
     "@types/react": "^19.2.7",
     "autoprefixer": "^10.4.20",
