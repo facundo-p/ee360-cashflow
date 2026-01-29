@@ -17,19 +17,22 @@ import usuariosRoutes from './src/routes/usuarios.routes';
 // Configuration
 const PORT = parseInt(process.env.PORT || '4000', 10);
 const HOST = process.env.HOST || '0.0.0.0';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Create Fastify instance
 const server = Fastify({
-  logger: {
-    level: process.env.LOG_LEVEL || 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname',
+  logger: IS_PRODUCTION
+    ? { level: process.env.LOG_LEVEL || 'info' }
+    : {
+        level: process.env.LOG_LEVEL || 'info',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
+          },
+        },
       },
-    },
-  },
 });
 
 // Register plugins
