@@ -60,8 +60,6 @@ export default async function categoriasRoutes(fastify: FastifyInstance): Promis
       preHandler: requireAdmin,
     },
     async (request: UpdateRequest) => {
-      console.log("Request: ", request.body);
-      console.log("Params: ", request.params);
       return CategoriasService.update(request.params.id, request.body);
     }
   );

@@ -27,6 +27,14 @@
 .page-container {
   @apply h-screen flex flex-col overflow-hidden;
   background-color: var(--color-bg-content);
+  /* Reserve space for fixed bottom nav on mobile */
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .page-container {
+    padding-bottom: 0;
+  }
 }
 
 .page-header {
@@ -114,8 +122,9 @@
    Bottom Navigation
    ======================================== */
 .bottom-nav {
-  @apply shrink-0 h-16 flex items-center justify-around;
+  @apply fixed bottom-0 left-0 right-0 h-16 flex items-center justify-around;
   background-color: var(--color-bg-nav);
+  z-index: 50;
 }
 
 .nav-button {
@@ -136,16 +145,40 @@
   @apply text-xs font-medium;
 }
 
+/* User menu in bottom nav (mobile only) */
+.nav-user-menu {
+  @apply flex flex-col items-center gap-1 px-2 py-2;
+}
+
+.nav-user-avatar {
+  @apply w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold;
+  background-color: var(--color-gold);
+  color: var(--color-bg-nav);
+}
+
+.nav-user-label {
+  @apply text-xs font-medium truncate max-w-[60px];
+  color: var(--color-text-gray);
+}
+
 /* ========================================
    Formulario - Nuevo Movimiento
    ======================================== */
 .form-container {
-  @apply h-screen flex flex-col overflow-hidden;
+  @apply h-screen flex flex-col;
   background: linear-gradient(180deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%);
   background-image: 
     linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(45, 45, 68, 0.9) 50%, rgba(26, 26, 46, 0.95) 100%),
     repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.1) 40px, rgba(0,0,0,0.1) 80px),
     repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 80px);
+  /* Reserve space for fixed bottom nav on mobile */
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .form-container {
+    padding-bottom: 0;
+  }
 }
 
 .form-header {
@@ -286,6 +319,14 @@
 .list-container {
   @apply h-screen flex flex-col overflow-hidden;
   background-color: var(--color-bg-content);
+  /* Reserve space for fixed bottom nav on mobile */
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .list-container {
+    padding-bottom: 0;
+  }
 }
 
 .list-header {

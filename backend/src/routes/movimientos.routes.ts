@@ -38,7 +38,6 @@ export default async function movimientosRoutes(fastify: FastifyInstance): Promi
         medio_pago_id: request.query.medio_pago_id,
       };
       // Pass user to get can_edit/can_delete permissions
-      console.log('request.user', request.user);
       const movimientos = await MovimientosService.list(filtros, request.user);
       return movimientos;
     }

@@ -7,6 +7,7 @@ import { listMedios } from '../lib/api-unified/medios';
 import { AppLayout } from '../components/layouts';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import DateInputWithPlaceholder from '../components/DateInput';
+import AdminOnly from '../components/guards/AdminOnly';
 
 type Categoria = {
   id: string;
@@ -340,9 +341,11 @@ function MovimientosContent() {
             placeholder="Hasta"
             className="list-filter-input"
           />
+          <AdminOnly>
           <button onClick={exportCSV} className="list-btn-export">
             Exportar CSV
           </button>
+          </AdminOnly>
         </div>
 
         <div className="desktop-content-main">
@@ -423,9 +426,11 @@ function MovimientosContent() {
             placeholder="Hasta"
             className="list-filter-input"
           />
-          <button onClick={exportCSV} className="list-btn-export">
-            CSV
-          </button>
+          <AdminOnly>
+            <button onClick={exportCSV} className="list-btn-export">
+              CSV
+            </button>
+          </AdminOnly>
         </div>
 
         {/* Lista de movimientos */}

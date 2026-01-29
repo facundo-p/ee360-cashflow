@@ -1,6 +1,9 @@
-// BottomNav: barra de navegación inferior estilo espartano.
+// BottomNav: barra de navegación inferior con user menu integrado.
 import React from 'react';
 import { useRouter } from 'next/router';
+import { useAuth } from '../contexts/AuthContext';
+import { useState } from 'react';
+import { WarningConfirmModal } from './WarningConfirmModal';
 
 type NavItem = {
   id: string;
@@ -45,6 +48,18 @@ const navItems: NavItem[] = [
 export default function BottomNav() {
   const router = useRouter();
   const currentPath = router.pathname;
+  const { user, logout } = useAuth();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  // Get user initials for avatar
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <nav className="bottom-nav">
@@ -61,6 +76,38 @@ export default function BottomNav() {
           </button>
         );
       })}
+      
+      {/* User menu integrated in bottom nav */}
+      {user && (
+        <button
+          onClick={() => setShowConfirm(true)}
+          className="nav-user-menu"
+          title={`${user.nombre} - Cerrar sesión`}
+        >
+          <span className="nav-user-avatar">
+            {getInitials(user.nombre)}
+          </span>
+          <span className="nav-user-label">Salir</span>
+        </button>
+      )}
+      {showConfirm && (
+        <WarningConfirmModal
+          title="Cerrar sesión"
+          message={
+            <>
+              ¿Estás seguro de que deseas cerrar sesión?
+              <br />
+              <strong>{user?.nombre}</strong>
+            </>
+          }
+          confirmLabel="Cerrar sesión"
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={() => {
+            setShowConfirm(false);
+            logout();
+          }}
+        />
+      )}
     </nav>
   );
 }

@@ -4,34 +4,34 @@ import React from 'react';
 const DEFAULT_ICON = '/icons/default.png';
 
 type Props = {
-  tipos: Array<{
+  opciones: Array<{
     id: string;
-    nombre: string;
+    nombre_display: string;
     sentido: 'ingreso' | 'egreso';
     icono?: string;
   }>;
   onSelect: (id: string) => void;
 };
 
-export default function Botonera({ tipos, onSelect }: Props) {
+export default function Botonera({ opciones, onSelect }: Props) {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = DEFAULT_ICON;
   };
 
   return (
     <section className="botonera-grid">
-      {tipos.map((t) => {
-        const iconSrc = t.icono ? `/icons/${t.icono}` : DEFAULT_ICON;
+      {opciones.map((o) => {
+        const iconSrc = o.icono ? `/icons/${o.icono}` : DEFAULT_ICON;
         return (
           <button
-            key={t.id}
-            onClick={() => onSelect(t.id)}
+            key={o.id}
+            onClick={() => onSelect(o.id)}
             className="btn-spartan"
           >
             <div className="btn-spartan-icon">
               <img src={iconSrc} alt="" onError={handleImageError} />
             </div>
-            <span className="btn-spartan-label">{t.nombre}</span>
+            <span className="btn-spartan-label">{o.nombre_display}</span>
           </button>
         );
       })}

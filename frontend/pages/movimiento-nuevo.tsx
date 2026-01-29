@@ -3,7 +3,8 @@ import React from 'react';
 import FormMovimiento from '../components/FormMovimiento';
 import { AppLayout } from '../components/layouts';
 
-export default function MovimientoNuevoPage() {
+// Mobile layout
+export default function MovimientoNuevoMobile() {
   return (
     <AppLayout mobileContainerClass="form-container">
       <FormMovimiento mode="create" />

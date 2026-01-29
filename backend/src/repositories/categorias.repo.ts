@@ -115,7 +115,6 @@ export const CategoriasRepo = {
 
     const fields: string[] = [];
     const values: any[] = [];
-    console.log("Payload: ", payload);
     if (payload.nombre !== undefined) {
       fields.push('nombre = ?');
       values.push(payload.nombre);

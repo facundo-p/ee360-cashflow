@@ -9,10 +9,10 @@ import { listOpciones } from '../lib/api-unified/tipos';
 
 function MobileHomeContent() {
   const router = useRouter();
-  const [tipos, setTipos] = useState<any[]>([]);
+  const [opciones, setOpciones] = useState<any[]>([]);
 
   useEffect(() => {
-    listOpciones().then(setTipos);
+    listOpciones().then(setOpciones);
   }, []);
 
   const handleSelect = (opcionId: string) => {
@@ -29,7 +29,7 @@ function MobileHomeContent() {
       <div className="page-divider" />
 
       <main className="page-main">
-        <Botonera tipos={tipos} onSelect={handleSelect} />
+        <Botonera opciones={opciones} onSelect={handleSelect} />
       </main>
     </>
   );

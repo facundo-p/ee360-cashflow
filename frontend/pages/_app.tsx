@@ -8,9 +8,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [authKey, setAuthKey] = useState(0);
 
   const handleAuthReset = () => {
-    console.log('handleAuthReset. Key:', authKey);
     setAuthKey(k => k + 1);
-    console.log('handleAuthReset. New key:', authKey);
   };
 
   return (

@@ -74,7 +74,7 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     listCategorias(true).then((cats: Categoria[]) => {
       setCategorias(cats);
       // Solo pre-seleccionar primera categoría si no hay una ya seleccionada
-      if (cats.length > 0 && !categoriaId) {
+      if (cats.length > 0 && !categoriaId && !router.query.opcion) {
         setCategoriaId(cats[0].id);
       }
     });
@@ -82,7 +82,7 @@ export default function FormMovimiento({ mode, movimientoId, embedded = false, o
     listMedios(true).then((m: MedioPago[]) => {
       setMedios(m);
       // Solo pre-seleccionar primer medio si no hay uno ya seleccionado
-      if (m.length > 0 && !medioId) {
+      if (m.length > 0 && !medioId && !router.query.opcion) {
         setMedioId(m[0].id);
       }
     });
