@@ -1,6 +1,6 @@
-// persistence/seeds/ts/010_opciones.ts
+// persistence/seeds/ts/101_seed_usuarios.ts
+// Seeds demo users for development/testing
 import { getDb } from '../../sqlite';
-import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
 
 const BCRYPT_ROUNDS = 10;
@@ -10,29 +10,23 @@ export async function run() {
 
   const usuarios = [
     {
-        id: 'u-admin',
-        nombre: 'Admin Demo',
-        username: 'admin@gym.test',
-        password: 'admin',
-        rol: 'admin',
-        activo: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-      {
-        id: 'u-user',
-        nombre: 'Coach Demo',
-        username: 'coach@gym.test',
-        password: 'coach',
-        rol: 'coach',
-        activo: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-    ]
+      id: 'u-admin',
+      nombre: 'Admin Demo',
+      username: 'admin@gym.test',
+      password: 'admin',
+      rol: 'admin',
+    },
+    {
+      id: 'u-coach',
+      nombre: 'Coach Demo',
+      username: 'coach@gym.test',
+      password: 'coach',
+      rol: 'coach',
+    },
+  ];
 
   const stmt = db.prepare(`
-    INSERT OR IGNORE INTO usuarios (
+    INSERT INTO usuarios (
       id,
       nombre,
       username,
@@ -42,22 +36,15 @@ export async function run() {
       created_at,
       updated_at
     ) VALUES (
-      ?, ?, ?, ?, ?, ?, ?, ?
+      ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now')
     )
-    ON CONFLICT(id) DO NOTHING;
+    ON CONFLICT(id) DO NOTHING
   `);
 
-  const now = new Date().toISOString();
   for (const u of usuarios) {
-    stmt.run(
-      randomUUID(),
-      u.nombre,
-      u.username,
-      await bcrypt.hash(u.password, BCRYPT_ROUNDS),
-      u.rol,
-      u.activo ? 1 : 0,
-      now,
-      now
-    );
+    const hash = await bcrypt.hash(u.password, BCRYPT_ROUNDS);
+    stmt.run(u.id, u.nombre, u.username, hash, u.rol);
   }
+
+  console.log(`  ✓ Created ${usuarios.length} demo users`);
 }

@@ -2,7 +2,17 @@ import fs from 'fs';
 import path from 'path';
 import { getDb } from './sqlite';
 
-const MIGRATIONS_DIR = path.resolve(process.cwd(), 'backend', 'persistence', 'migrations');
+// Resolve migrations dir - works both in monorepo (dev) and Docker (prod)
+function getMigrationsDir(): string {
+  // Try Docker/standalone path first
+  const dockerPath = path.resolve(process.cwd(), 'persistence', 'migrations');
+  if (fs.existsSync(dockerPath)) return dockerPath;
+  
+  // Fallback to monorepo path (development)
+  return path.resolve(process.cwd(), 'backend', 'persistence', 'migrations');
+}
+
+const MIGRATIONS_DIR = getMigrationsDir();
 
 export function runMigrations() {
   const db = getDb();

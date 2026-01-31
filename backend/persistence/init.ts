@@ -3,7 +3,7 @@ import { getDb } from './sqlite';
 import { runMigrations } from './migrate';
 import { runSeeds } from './seed';
 
-async function initDatabase() {
+export async function initDatabase() {
   console.log('🚀 Initializing database...');
 
   try {

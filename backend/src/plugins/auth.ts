@@ -6,14 +6,14 @@ import fp from 'fastify-plugin';
 import { verifyToken } from '../auth/jwt';
 import { UsuariosRepo } from '../repositories/usuarios.repo';
 import { UsuarioDTO } from '../dto/usuarios.dto';
+import { IS_PRODUCTION } from '../../server';
 
 /**
  * MOCK_AUTH: Solo para desarrollo local.
  * - Si MOCK_AUTH=true (o no definido en dev): permite requests sin token usando usuario mock
  * - Si MOCK_AUTH=false: requiere token real (modo producción)
- * - En NODE_ENV=production: siempre requiere token real
+ * - Si IS_PRODUCTION=true: siempre requiere token real
  */
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const USE_MOCK_AUTH = !IS_PRODUCTION && process.env.MOCK_AUTH !== 'false';
 
 // Usuario mock para desarrollo (solo cuando USE_MOCK_AUTH=true)
@@ -128,7 +128,7 @@ export async function requireAdmin(
  */
 async function authPlugin(fastify: FastifyInstance): Promise<void> {
   // Decorar request con user (tipado en fastify.d.ts)
-  fastify.decorateRequest('user', null);
+  fastify.decorateRequest('user', undefined as UsuarioDTO | undefined);
 
   // Log del modo de autenticación
   if (IS_PRODUCTION) {

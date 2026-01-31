@@ -53,7 +53,7 @@ function isDomainError(error: unknown): error is { code: string; message: string
 }
 
 export function errorHandler(
-  error: FastifyError,
+  error: unknown,
   request: FastifyRequest,
   reply: FastifyReply
 ) {
@@ -61,11 +61,16 @@ export function errorHandler(
   request.log.error(error);
 
   // Handle Fastify validation errors
-  if (error.validation) {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'validation' in error
+  ) {
+    const fastifyError = error as FastifyError;
     return reply.status(400).send({
       error: 'Error de validación',
       code: 'VALIDATION_ERROR',
-      details: error.validation,
+      details: fastifyError.validation,
     });
   }
 
@@ -78,10 +83,19 @@ export function errorHandler(
     });
   }
 
-  // Handle unknown errors
-  const statusCode = error.statusCode || 500;
+  // Handle unknown / unexpected error
+  const fastifyError = error as Partial<FastifyError>;
+
+  const statusCode =
+    typeof fastifyError?.statusCode === 'number'
+      ? fastifyError.statusCode
+      : 500;
+
   return reply.status(statusCode).send({
-    error: statusCode === 500 ? 'Error interno del servidor' : error.message,
+    error:
+      statusCode === 500
+        ? 'Error interno del servidor'
+        : fastifyError?.message ?? 'Error',
     code: 'INTERNAL_ERROR',
   });
 }
